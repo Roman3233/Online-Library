@@ -1,0 +1,97 @@
+########################################
+# Visual Studio / .NET
+########################################
+.vs/
+**/bin/
+**/obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.pidb
+
+########################################
+# Build results
+########################################
+Debug/
+Release/
+publish/
+*.dll
+*.exe
+*.app
+*.ilk
+*.pdb
+*.cache
+
+########################################
+# NuGet
+########################################
+*.nupkg
+*.snupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+########################################
+# ASP.NET Core
+########################################
+appsettings.Development.json
+appsettings.*.Local.json
+*.db
+*.sqlite
+secrets.json
+
+########################################
+# Visual Studio Code
+########################################
+.vscode/
+
+########################################
+# Rider
+########################################
+.idea/
+*.sln.iml
+
+########################################
+# Node / Angular
+########################################
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Angular build / cache
+dist/
+out-tsc/
+.angular/
+.angular/cache/
+coverage/
+
+# environment files
+.env
+.env.*
+
+########################################
+# Logs
+########################################
+logs/
+*.log
+
+########################################
+# OS generated files
+########################################
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+
+########################################
+# Misc
+########################################
+*.local
+*.swp
+*.swo
+*.tmp
+~$*
