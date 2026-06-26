@@ -16,13 +16,13 @@ public class UsersController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        return Ok(await _context.Users.ToListAsync());
+        return Ok(await _context.Users.Include(u => u.UploadedBooks).ToListAsync());
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var user = await _context.Users.FindAsync(id);
+        var user = await _context.Users.Include(u => u.UploadedBooks).FirstOrDefaultAsync(u => u.Id == id);
         return user is null ? NotFound() : Ok(user);
     }
 
