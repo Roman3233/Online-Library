@@ -14,7 +14,7 @@ public class BooksController : ControllerBase
     public BooksController(AppDbContext context) { _context = context; }
 
     [HttpGet]
-    public async Task<IActionresult> GetAll()
+    public async Task<IActionResult> GetAll()
     {
         return Ok(await _context.Books.ToListAsync());
     }
@@ -37,9 +37,12 @@ public class BooksController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] Book book)
     {
-        var book = await _context.Books.FindAsync(id);
-        if (book is null) return NotFound();
-        _context.Books.Update(book);
+        var existingBook = await _context.Books.FindAsync(id);
+        if (existingBook is null) return NotFound();
+
+        existingBook.Title = book.Title;
+        existingBook.Author = book.Author;
+
         await _context.SaveChangesAsync();
         return NoContent();
     }
