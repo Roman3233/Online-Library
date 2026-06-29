@@ -7,8 +7,8 @@ public class Comment
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public int BookId { get; set; }
-    public Book Book { get; set; } = null!;
+    public Book? Book { get; set; }
 
     public int UserId { get; set; }
-    public User User { get; set; } = null!;
+    public User? User { get; set; }
 }
