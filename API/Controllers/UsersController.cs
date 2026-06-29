@@ -32,6 +32,8 @@ public class UsersController : ControllerBase
         var emailExists = await _context.Users.AnyAsync(x => x.Email == user.Email);
         if (emailExists) return BadRequest("Email already exists");
 
+        user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+        
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
