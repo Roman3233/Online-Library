@@ -41,8 +41,7 @@ public class BooksController : ControllerBase
         if (existingBook is null) return NotFound();
 
         existingBook.Title = book.Title;
-        existingBook.Author = book.Author;
-
+        
         await _context.SaveChangesAsync();
         return NoContent();
     }
