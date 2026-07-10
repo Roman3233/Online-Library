@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using API.Data;
 using API.Models;
+using API.DTOs;
 namespace API.Controllers;
 
 [ApiController]
@@ -22,30 +23,37 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] User user)
+    public async Task<IActionResult> Register([FromBody] RegisterDto req)
     {
-        var emailExists = await _context.Users.AnyAsync(x => x.Email == user.Email);
-        if(emailExists) return BadRequest("Email already Exists");
+        var emailExists = await _context.Users.AnyAsync(x => x.Email == req.Email);
+        var usernameExists = await _context.Users.AnyAsync(x => x.Username == req.Username);
 
-        user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+        if(emailExists || usernameExists) return BadRequest("Email or Username already Exists");
+
+        var user = new User
+        {
+            Email = req.Email,
+            Password = BCrypt.Net.BCrypt.HashPassword(req.Password),
+            Username = req.Username,
+            Role = "user"
+        };
+
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
         return Ok();
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] User user)
+    public async Task<IActionResult> Login([FromBody] LoginDto req)
     {
-        var user_ = await _context.Users.FirstOrDefaultAsync(x => x.Email == user.Email);
-        if(user_ == null) return BadRequest("User not Found");   
+        var user_ = await _context.Users.FirstOrDefaultAsync(x => x.Email == req.Email);
+        if(user_ ==null) return Unauthorized("Invalid Email or Password");
 
-        if(!BCrypt.Net.BCrypt.Verify(user.Password, user_.Password))
-        {
-            return BadRequest("Incorrect Password");
-        }
+        if(!BCrypt.Net.BCrypt.Verify(req.Password, user_.Password))
+            return Unauthorized("Invalid Email or Password");
 
         var token = GenerateJwt(user_);
-        return Ok(new { Token = token });
+        return Ok(new AuthResponseDto { Token = token });
     }
 
     private string GenerateJwt(User user)
