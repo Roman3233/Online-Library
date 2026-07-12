@@ -1,10 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using API.Data;
 using API.Models;
 
 namespace API.Controllers;
-
 [ApiController]
 [Route("api/[controller]")]
 public class BooksController : ControllerBase
@@ -25,13 +26,21 @@ public class BooksController : ControllerBase
         var book = await _context.Books.Include(b => b.User).FirstOrDefaultAsync(b => b.Id == id);
         return book is null ? NotFound() : Ok(book);
     }
-
+    
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] Book book)
     {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if(userIdClaim == null) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
+
+        book.UserId = userId;
+        book.UploadedAt = DateTime.UtcNow;
+
         _context.Books.Add(book);
         await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetById), new { id = book.Id }, book);
+        return Ok();        
     }
 
     [HttpPut("{id}")]
