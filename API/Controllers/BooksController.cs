@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using API.Data;
 using API.Models;
+using API.DTOs;
 
 namespace API.Controllers;
 [ApiController]
@@ -29,23 +30,27 @@ public class BooksController : ControllerBase
 
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] Book book)
+    public async Task<IActionResult> Create([FromBody] CreateBookDto dto)
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if(userIdClaim == null) return Unauthorized();
         var userId = int.Parse(userIdClaim);
 
-        book.UserId = userId;
-        book.UploadedAt = DateTime.UtcNow;
-
+        var book = new Book
+        {
+            Title = dto.Title,
+            UserId = userId,
+            UploadedAt = DateTime.UtcNow
+        };
+        
         _context.Books.Add(book);
         await _context.SaveChangesAsync();
-        return Ok(book);      
+        return CreatedAtAction(nameof(GetById), new { id = book.Id }, book);    
     }
 
     [Authorize]
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] Book book)
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateBookDto dto)
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if(userIdClaim == null) return Unauthorized();
@@ -54,7 +59,7 @@ public class BooksController : ControllerBase
         var existingBook = await _context.Books.FindAsync(id);
         if(existingBook is null || existingBook.UserId != userId) return NotFound();
 
-        existingBook.Title = book.Title;
+        existingBook.Title = dto.Title;
 
         await _context.SaveChangesAsync();
         return NoContent();

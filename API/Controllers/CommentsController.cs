@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using API.Data;
 using API.Models;
+using API.DTOs;
 
 namespace API.Controllers;
 
@@ -32,13 +33,19 @@ public class CommentsController : ControllerBase
     }
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] Comment comment)
+    public async Task<IActionResult> Create([FromBody] CreateCommentDto dto)
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if(userIdClaim == null) return Unauthorized();
         var userId = int.Parse(userIdClaim);
-        comment.UserId = userId;
-        comment.CreatedAt = DateTime.UtcNow;
+
+        var comment = new Comment
+        {
+            Text = dto.Text,
+            BookId = dto.BookId,
+            UserId = userId,
+            CreatedAt = DateTime.UtcNow
+        };
         
         _context.Comments.Add(comment);
         await _context.SaveChangesAsync();
