@@ -26,7 +26,7 @@ public class BooksController : ControllerBase
         var book = await _context.Books.Include(b => b.User).FirstOrDefaultAsync(b => b.Id == id);
         return book is null ? NotFound() : Ok(book);
     }
-    
+
     [Authorize]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] Book book)
@@ -40,26 +40,38 @@ public class BooksController : ControllerBase
 
         _context.Books.Add(book);
         await _context.SaveChangesAsync();
-        return Ok();        
+        return Ok(book);      
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] Book book)
     {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if(userIdClaim == null) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
+
         var existingBook = await _context.Books.FindAsync(id);
-        if (existingBook is null) return NotFound();
+        if(existingBook is null || existingBook.UserId != userId) return NotFound();
 
         existingBook.Title = book.Title;
-        
+
         await _context.SaveChangesAsync();
         return NoContent();
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if(userIdClaim == null) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
+
         var book = await _context.Books.FindAsync(id);
-        if (book is null) return NotFound();
+
+        if (book is null || book.UserId != userId) return NotFound();
+        
         _context.Books.Remove(book);
         await _context.SaveChangesAsync();
         return NoContent();
