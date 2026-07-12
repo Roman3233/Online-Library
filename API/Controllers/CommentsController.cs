@@ -18,18 +18,26 @@ public class CommentsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        return Ok(await _context.Comments.Include(c=> c.User).Include(c => c.Book).ToListAsync());
+        var comments = await _context.Comments.Include(c=> c.User).Include(c => c.Book).ToListAsync();
+        return Ok(comments.Select(c => new CommentSummaryDto {
+            Id = c.Id,
+            Text = c.Text,
+            CreatedAt = c.CreatedAt,
+            BookId = c.BookId
+        }));
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var comment = await _context.Comments
-            .Include(c => c.User)
-            .Include(c => c.Book)
-            .FirstOrDefaultAsync(c => c.Id == id);
-
-        return comment is null ? NotFound() : Ok(comment);
+        var comment = await _context.Comments.FindAsync(id);
+        if (comment is null) return NotFound();
+        return Ok(new CommentSummaryDto {
+            Id = comment.Id,
+            Text = comment.Text,
+            CreatedAt = comment.CreatedAt,
+            BookId = comment.BookId
+        });
     }
     [Authorize]
     [HttpPost]
@@ -49,7 +57,12 @@ public class CommentsController : ControllerBase
         
         _context.Comments.Add(comment);
         await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetById), new { id = comment.Id }, comment);
+        return CreatedAtAction(nameof(GetById), new { id = comment.Id }, new CommentSummaryDto {
+            Id = comment.Id,
+            Text = comment.Text,
+            CreatedAt = comment.CreatedAt,
+            BookId = comment.BookId
+        });
     }
 
     [Authorize]
@@ -58,10 +71,13 @@ public class CommentsController : ControllerBase
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if(userIdClaim == null) return Unauthorized();
+
         var userId = int.Parse(userIdClaim);
         
         var comment = await _context.Comments.FindAsync(id);
-        if (comment is null || comment.UserId != userId) return NotFound();
+        if (comment is null) return NotFound();
+        if (comment.UserId != userId && !User.IsInRole("admin"))
+            return Forbid();
         
         _context.Comments.Remove(comment);
         await _context.SaveChangesAsync();

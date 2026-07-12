@@ -1,5 +1,4 @@
 namespace API.DTOs;
-using API.Models;
 
 public class UserResponseDto {
     public int Id { get; set; }

@@ -66,10 +66,14 @@ public class UsersController : ControllerBase
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if(userIdClaim == null) return Unauthorized();
+
         var userId = int.Parse(userIdClaim);
 
         var user = await _context.Users.FindAsync(id);
-        if (user is null || user.Id != userId) return NotFound();
+        if (user is null) return NotFound();
+        if (user.Id != userId && !User.IsInRole("admin"))
+            return Forbid();
+        
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
         return NoContent();

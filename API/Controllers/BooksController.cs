@@ -18,14 +18,26 @@ public class BooksController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        return Ok(await _context.Books.Include(b => b.User).ToListAsync());
+        var books = await _context.Books.Include(b => b.User).ToListAsync();
+        return Ok(books.Select(b => new BookSummaryDto {
+            Id = b.Id,
+            Title = b.Title,
+            UploadedAt = b.UploadedAt,
+            UserId = b.UserId
+        }));
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
         var book = await _context.Books.Include(b => b.User).FirstOrDefaultAsync(b => b.Id == id);
-        return book is null ? NotFound() : Ok(book);
+        if (book is null) return NotFound();
+        return Ok(new BookSummaryDto {
+            Id = book.Id,
+            Title = book.Title,
+            UploadedAt = book.UploadedAt,
+            UserId = book.UserId
+        });
     }
 
     [Authorize]
@@ -45,7 +57,12 @@ public class BooksController : ControllerBase
         
         _context.Books.Add(book);
         await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetById), new { id = book.Id }, book);    
+        return CreatedAtAction(nameof(GetById), new { id = book.Id }, new BookSummaryDto {
+            Id = book.Id,
+            Title = book.Title,
+            UploadedAt = book.UploadedAt,
+            UserId = book.UserId
+        });    
     }
 
     [Authorize]
@@ -71,12 +88,15 @@ public class BooksController : ControllerBase
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if(userIdClaim == null) return Unauthorized();
+
         var userId = int.Parse(userIdClaim);
 
         var book = await _context.Books.FindAsync(id);
-
-        if (book is null || book.UserId != userId) return NotFound();
+        if (book is null) return NotFound();
         
+        if (book.UserId != userId && !User.IsInRole("admin"))
+            return Forbid();
+            
         _context.Books.Remove(book);
         await _context.SaveChangesAsync();
         return NoContent();
