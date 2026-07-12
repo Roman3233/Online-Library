@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using API.Data;
 using API.Models;
 
@@ -28,20 +30,32 @@ public class CommentsController : ControllerBase
 
         return comment is null ? NotFound() : Ok(comment);
     }
-
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] Comment comment)
     {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if(userIdClaim == null) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
+        comment.UserId = userId;
+        comment.CreatedAt = DateTime.UtcNow;
+        
         _context.Comments.Add(comment);
         await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetById), new { id = comment.Id }, comment);
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if(userIdClaim == null) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
+        
         var comment = await _context.Comments.FindAsync(id);
-        if (comment is null) return NotFound();
+        if (comment is null || comment.UserId != userId) return NotFound();
+        
         _context.Comments.Remove(comment);
         await _context.SaveChangesAsync();
         return NoContent();
