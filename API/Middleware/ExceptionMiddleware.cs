@@ -50,6 +50,8 @@ public class ExceptionMiddleware
 
     private async Task WriteProblemDetailsAsync(HttpContext context, int statusCode, string title, string detail)
     {
+        context.Response.StatusCode = statusCode;
+        
         await _problemDetailsService.WriteAsync(new ProblemDetailsContext
         {
             HttpContext = context,
