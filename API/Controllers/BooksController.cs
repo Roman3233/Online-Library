@@ -99,4 +99,26 @@ public class BooksController : ControllerBase
         await _context.SaveChangesAsync();
         return NoContent();
     }
+    
+    [Authorize]
+    [HttpPost("{id}/upload")]
+    public async Task<IActionResult> Upload(int id, [FromForm] UploadBookDto dto)
+    {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if(userIdClaim == null) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
+
+        var existingBook = await _context.Books.FindAsync(id);
+
+        if(existingBook is null) throw new NotFoundException("Book not found");
+        if (existingBook.UserId != userId && !User.IsInRole("admin")) 
+        throw new ForbiddenException("You don't have permission to upload to this book");
+        
+
+        if(dto.File == null || dto.File.Length == 0) throw new ValidationException("File is required");
+
+        
+        
+        
+    }
 }
