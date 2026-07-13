@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using API.Data;
 using API.Models;
 using API.DTOs;
+using API.Middleware.Exceptions;
 namespace API.Controllers;
 
 [ApiController]
@@ -28,7 +29,7 @@ public class AuthController : ControllerBase
         var emailExists = await _context.Users.AnyAsync(x => x.Email == req.Email);
         var usernameExists = await _context.Users.AnyAsync(x => x.Username == req.Username);
 
-        if(emailExists || usernameExists) return BadRequest("Email or Username already Exists");
+        if(emailExists || usernameExists) throw new ConflictException("Email or Username already exists");
 
         var user = new User
         {

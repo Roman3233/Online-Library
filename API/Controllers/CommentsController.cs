@@ -5,7 +5,7 @@ using System.Security.Claims;
 using API.Data;
 using API.Models;
 using API.DTOs;
-
+using API.Middleware.Exceptions;
 namespace API.Controllers;
 
 [ApiController]
@@ -31,7 +31,7 @@ public class CommentsController : ControllerBase
     public async Task<IActionResult> GetById(int id)
     {
         var comment = await _context.Comments.FindAsync(id);
-        if (comment is null) return NotFound();
+        if (comment is null) throw new NotFoundException("Comment not found");
         return Ok(new CommentSummaryDto {
             Id = comment.Id,
             Text = comment.Text,
@@ -70,9 +70,9 @@ public class CommentsController : ControllerBase
         var userId = int.Parse(userIdClaim);
         
         var comment = await _context.Comments.FindAsync(id);
-        if (comment is null) return NotFound();
-        if (comment.UserId != userId && !User.IsInRole("admin"))
-            return Forbid();
+        if (comment is null) throw new NotFoundException("Comment not found");
+        if (comment.UserId != userId || !User.IsInRole("admin"))
+            throw new ForbiddenException("You don't have permission to delete this comment");
         
         _context.Comments.Remove(comment);
         await _context.SaveChangesAsync();

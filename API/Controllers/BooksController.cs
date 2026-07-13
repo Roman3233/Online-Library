@@ -5,6 +5,7 @@ using System.Security.Claims;
 using API.Data;
 using API.Models;
 using API.DTOs;
+using API.Middleware.Exceptions;
 
 namespace API.Controllers;
 [ApiController]
@@ -31,7 +32,7 @@ public class BooksController : ControllerBase
     public async Task<IActionResult> GetById(int id)
     {
         var book = await _context.Books.Include(b => b.User).FirstOrDefaultAsync(b => b.Id == id);
-        if (book is null) return NotFound();
+        if (book is null) throw new NotFoundException("Book not found");
         return Ok(new BookSummaryDto {
             Id = book.Id,
             Title = book.Title,
@@ -65,11 +66,13 @@ public class BooksController : ControllerBase
     public async Task<IActionResult> Update(int id, [FromBody] UpdateBookDto dto)
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if(userIdClaim == null) return NotFound();
+        if(userIdClaim == null) return Unauthorized();
         var userId = int.Parse(userIdClaim);
 
         var existingBook = await _context.Books.FindAsync(id);
-        if(existingBook is null || existingBook.UserId != userId) return Unauthorized();
+        if(existingBook is null) throw new NotFoundException("Book not found");
+        if (existingBook.UserId != userId && !User.IsInRole("admin")) 
+        throw new ForbiddenException("You don't have permission to update this book");
 
         existingBook.Title = dto.Title;
 
@@ -87,10 +90,10 @@ public class BooksController : ControllerBase
         var userId = int.Parse(userIdClaim);
 
         var book = await _context.Books.FindAsync(id);
-        if (book is null) return NotFound();
+        if (book is null) throw new NotFoundException("Book not found");
         
-        if (book.UserId != userId && !User.IsInRole("admin"))
-            return Forbid();
+        if (book.UserId != userId && !User.IsInRole("admin")) 
+        throw new ForbiddenException("You don't have permission to delete this book");
             
         _context.Books.Remove(book);
         await _context.SaveChangesAsync();

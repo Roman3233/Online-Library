@@ -7,5 +7,5 @@ public class UserResponseDto {
     public string Role { get; set; } = string.Empty;
     public ICollection<BookSummaryDto> UploadedBooks { get; set; } = new List<BookSummaryDto>();
     public ICollection<CommentSummaryDto> Comments { get; set; } = new List<CommentSummaryDto>();
-    public DateTime RegisteredAt { get; set; } = DateTime.UtcNow;
+    public DateTime RegisteredAt { get; set; }
 }

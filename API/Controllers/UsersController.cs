@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using API.Data;
 using API.DTOs;
+using API.Middleware.Exceptions;
 
 namespace API.Controllers;
 
@@ -33,7 +34,7 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> GetById(int id)
     {
         var user = await _context.Users.FindAsync(id);
-        if (user is null) return NotFound();
+        if (user is null) throw new NotFoundException("User not found");
         return Ok(new UserResponseDto {
             Id = user.Id,
             Username = user.Username,
@@ -52,7 +53,9 @@ public class UsersController : ControllerBase
         var userId = int.Parse(userIdClaim);
 
         var existingUser = await _context.Users.FindAsync(id);
-        if (existingUser is null || existingUser.Id != userId) return NotFound();
+        if (existingUser is null) throw new NotFoundException("User not found");
+        if (existingUser.Id != userId || !User.IsInRole("admin")) 
+            throw new ForbiddenException("You don't have permission to update this user");
 
         existingUser.Username = dto.Username;
 
@@ -70,7 +73,7 @@ public class UsersController : ControllerBase
         var userId = int.Parse(userIdClaim);
 
         var user = await _context.Users.FindAsync(id);
-        if (user is null) return NotFound();
+        if (user is null) throw new NotFoundException("User not found");
         if (user.Id != userId && !User.IsInRole("admin"))
             return Forbid();
         
