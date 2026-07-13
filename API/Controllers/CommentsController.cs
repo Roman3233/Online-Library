@@ -57,12 +57,7 @@ public class CommentsController : ControllerBase
         
         _context.Comments.Add(comment);
         await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetById), new { id = comment.Id }, new CommentSummaryDto {
-            Id = comment.Id,
-            Text = comment.Text,
-            CreatedAt = comment.CreatedAt,
-            BookId = comment.BookId
-        });
+        return CreatedAtAction(nameof(GetById), new { id = comment.Id }, comment);
     }
 
     [Authorize]

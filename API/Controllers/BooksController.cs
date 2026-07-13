@@ -57,12 +57,7 @@ public class BooksController : ControllerBase
         
         _context.Books.Add(book);
         await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetById), new { id = book.Id }, new BookSummaryDto {
-            Id = book.Id,
-            Title = book.Title,
-            UploadedAt = book.UploadedAt,
-            UserId = book.UserId
-        });    
+        return CreatedAtAction(nameof(GetById), new { id = book.Id }, book);
     }
 
     [Authorize]
@@ -70,11 +65,11 @@ public class BooksController : ControllerBase
     public async Task<IActionResult> Update(int id, [FromBody] UpdateBookDto dto)
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if(userIdClaim == null) return Unauthorized();
+        if(userIdClaim == null) return NotFound();
         var userId = int.Parse(userIdClaim);
 
         var existingBook = await _context.Books.FindAsync(id);
-        if(existingBook is null || existingBook.UserId != userId) return NotFound();
+        if(existingBook is null || existingBook.UserId != userId) return Unauthorized();
 
         existingBook.Title = dto.Title;
 
