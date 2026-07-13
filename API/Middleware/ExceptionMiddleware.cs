@@ -1,4 +1,3 @@
-using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using API.Middleware.Exceptions;
 namespace API.Middleware;
@@ -25,84 +24,47 @@ public class ExceptionMiddleware
         catch (NotFoundException ex)
         {
             _logger.LogInformation("Resource not found: {Message}", ex.Message);
-            await _problemDetailsService.WriteAsync(new ProblemDetailsContext
-            {
-                HttpContext = context,
-                ProblemDetails = new ProblemDetails
-                {
-                    Status = ex.StatusCode,
-                    Title = "Not Found",
-                    Detail = ex.Message,
-                    Instance = context.Request.Path,
-                    Extensions = { { "traceId", context.TraceIdentifier } }
-                }
-            });
+            await WriteProblemDetailsAsync(context, ex.StatusCode, "Not Found", ex.Message);
         }
         catch (ValidationException ex)
         {
             _logger.LogInformation("Validation failed: {Message}", ex.Message);
-            await _problemDetailsService.WriteAsync(new ProblemDetailsContext
-            {
-                HttpContext = context,
-                ProblemDetails = new ProblemDetails
-                {
-                    Status = ex.StatusCode,
-                    Title = "Validation Error",
-                    Detail = ex.Message,
-                    Instance = context.Request.Path,
-                    Extensions = { { "traceId", context.TraceIdentifier } }
-                }
-            });
+            await WriteProblemDetailsAsync(context, ex.StatusCode, "Validation Error", ex.Message);
         }
         catch (ForbiddenException ex)
         {
             _logger.LogInformation("Forbidden: {Message}", ex.Message);
-            await _problemDetailsService.WriteAsync(new ProblemDetailsContext
-            {
-                HttpContext = context,
-                ProblemDetails = new ProblemDetails
-                {
-                    Status = ex.StatusCode,
-                    Title = "Forbidden",
-                    Detail = ex.Message,
-                    Instance = context.Request.Path,
-                    Extensions = { { "traceId", context.TraceIdentifier } }
-                }
-            });
+            await WriteProblemDetailsAsync(context, ex.StatusCode, "Forbidden", ex.Message);
         }
         catch (ConflictException ex)
         {
             _logger.LogInformation("Conflict: {Message}", ex.Message);
-            await _problemDetailsService.WriteAsync(new ProblemDetailsContext
-            {
-                HttpContext = context,
-                ProblemDetails = new ProblemDetails
-                {
-                    Status = ex.StatusCode,
-                    Title = "Conflict",
-                    Detail = ex.Message,
-                    Instance = context.Request.Path,
-                    Extensions = { { "traceId", context.TraceIdentifier } }
-                }
-            });
+            await WriteProblemDetailsAsync(context, ex.StatusCode, "Conflict", ex.Message);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An unexpected error occurred");
-            await _problemDetailsService.WriteAsync(new ProblemDetailsContext
-            {
-                HttpContext = context,
-                ProblemDetails = new ProblemDetails
-                {
-                    Status = 500,
-                    Title = "Internal Server Error",
-                    Detail = ex.Message,
-                    Instance = context.Request.Path,
-                    Extensions = { { "traceId", context.TraceIdentifier } }
-                }
-            });
+            await WriteProblemDetailsAsync(context, 500, "Internal Server Error", "Something went wrong.");
         }
     }
+
+    private async Task WriteProblemDetailsAsync(HttpContext context, int statusCode, string title, string detail)
+    {
+        await _problemDetailsService.WriteAsync(new ProblemDetailsContext
+        {
+            HttpContext = context,
+            ProblemDetails = new ProblemDetails
+            {
+                Status = statusCode,
+                Title = title,
+                Detail = detail,
+                Instance = context.Request.Path,
+                Extensions = { { "traceId", context.TraceIdentifier } }
+            }
+        });
+    }
+
+    
 
     
 }
