@@ -99,4 +99,64 @@ public class BooksController : ControllerBase
         await _context.SaveChangesAsync();
         return NoContent();
     }
+    
+    [Authorize]
+    [HttpPost("{id}/upload")]
+    public async Task<IActionResult> Upload(int id, [FromForm] UploadBookDto dto)
+    {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if(userIdClaim == null) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
+
+        var existingBook = await _context.Books.FindAsync(id);
+
+        if(existingBook is null) throw new NotFoundException("Book not found");
+        if (existingBook.UserId != userId && !User.IsInRole("admin")) 
+        throw new ForbiddenException("You don't have permission to upload to this book");
+        
+        if(dto.File == null || dto.File.Length == 0) throw new ValidationException("File is required");
+
+        string extension = Path.GetExtension(dto.File.FileName);
+
+        if(extension != ".pdf") throw new ValidationException("File type not supported");
+
+        string fileName = Guid.NewGuid().ToString() + extension;
+        string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", fileName);
+
+        if(!Directory.Exists(Path.GetDirectoryName(filePath)))
+        Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+        
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await dto.File.CopyToAsync(stream);
+        }
+
+        existingBook.FileName = existingBook.Title + extension;
+        existingBook.FilePath = fileName;
+        existingBook.FileSize = dto.File.Length;
+        existingBook.ContentType = dto.File.ContentType;
+
+        await _context.SaveChangesAsync();
+        return Ok(existingBook);
+    }
+
+    [Authorize]
+    [HttpGet("{id}/download")]
+    public async Task<IActionResult> Download(int id)
+    {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if(userIdClaim == null) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
+
+        var existingBook = await _context.Books.FindAsync(id);
+        if(existingBook is null) throw new NotFoundException("Book not found");
+
+        if (string.IsNullOrEmpty(existingBook.FilePath))
+        throw new ValidationException("Book has no file");
+
+        string FilePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", existingBook.FilePath);
+        if (!System.IO.File.Exists(FilePath)) throw new NotFoundException("File not found on server");
+        
+        return PhysicalFile(FilePath, existingBook.ContentType, existingBook.FileName);
+    }
 }
