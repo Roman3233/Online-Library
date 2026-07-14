@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using Microsoft.AspNetCore.StaticFiles;
+using System.IO;
 using API.Data;
 using API.Models;
 using API.DTOs;
@@ -114,11 +116,29 @@ public class BooksController : ControllerBase
         if (existingBook.UserId != userId && !User.IsInRole("admin")) 
         throw new ForbiddenException("You don't have permission to upload to this book");
         
-
         if(dto.File == null || dto.File.Length == 0) throw new ValidationException("File is required");
 
+        string extension = Path.GetExtension(dto.File.FileName);
+
+        if(extension != ".pdf") throw new ValidationException("File type not supported");
+
+        string fileName = Guid.NewGuid().ToString() + extension;
+        string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", fileName);
+
+        if(!Directory.Exists(Path.GetDirectoryName(filePath)))
+        Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
         
-        
-        
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await dto.File.CopyToAsync(stream);
+        }
+
+        existingBook.FileName = existingBook.Title + extension;
+        existingBook.FilePath = fileName;
+        existingBook.FileSize = dto.File.Length;
+        existingBook.ContentType = dto.File.ContentType;
+
+        await _context.SaveChangesAsync();
+        return Ok(existingBook);
     }
 }
