@@ -139,4 +139,24 @@ public class BooksController : ControllerBase
         await _context.SaveChangesAsync();
         return Ok(existingBook);
     }
+
+    [Authorize]
+    [HttpGet("{id}/download")]
+    public async Task<IActionResult> Download(int id)
+    {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if(userIdClaim == null) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
+
+        var existingBook = await _context.Books.FindAsync(id);
+        if(existingBook is null) throw new NotFoundException("Book not found");
+
+        if (string.IsNullOrEmpty(existingBook.FilePath))
+        throw new ValidationException("Book has no file");
+
+        string FilePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", existingBook.FilePath);
+        if (!System.IO.File.Exists(FilePath)) throw new NotFoundException("File not found on server");
+        
+        return PhysicalFile(FilePath, existingBook.ContentType, existingBook.FileName);
+    }
 }
