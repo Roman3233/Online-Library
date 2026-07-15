@@ -59,6 +59,9 @@ public class AuthController : ControllerBase
 
     private string GenerateJwt(User user)
     {
+        var jwtKey = _configuration["Jwt:Key"]
+            ?? throw new InvalidOperationException("Jwt:Key is missing.");
+
         var claims = new[] {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Email, user.Email),
@@ -66,7 +69,7 @@ public class AuthController : ControllerBase
         };
 
         var credentials = new SigningCredentials(
-            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"])),
+            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
             SecurityAlgorithms.HmacSha256
         );
 
