@@ -72,6 +72,9 @@ coverage/
 # environment files
 .env
 .env.*
+API/Resources/Books/*
+
+!API/Resources/Books/.gitkeep
 
 ########################################
 # Logs
