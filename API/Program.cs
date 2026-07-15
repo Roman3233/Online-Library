@@ -25,13 +25,12 @@ builder.Services.AddProblemDetails(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    // Описываем схему как HTTP Bearer
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Type = SecuritySchemeType.Http,
-        Scheme = "bearer", // Обязательно маленькими буквами
+        Scheme = "bearer", 
         BearerFormat = "JWT",
-        Description = "Введите ваш JWT токен (просто скопируйте его без слова 'Bearer')"
+        Description = "Enter JWT token (only the token itself)"
     });
 
     options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
