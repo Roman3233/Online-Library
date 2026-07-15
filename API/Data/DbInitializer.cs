@@ -117,7 +117,7 @@ public static class DbInitializer
         var destinationPath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", uniqueFileName);
 
         var destDir = Path.GetDirectoryName(destinationPath);
-        if (!Directory.Exists(destDir)) Directory.CreateDirectory(destDir);
+        if (destDir != null && !Directory.Exists(destDir)) Directory.CreateDirectory(destDir);
 
         System.IO.File.Copy(sourcePath, destinationPath, overwrite: true);
 
