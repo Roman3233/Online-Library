@@ -118,7 +118,7 @@ public class BooksController : ControllerBase
 
         string extension = Path.GetExtension(dto.File.FileName);
 
-        if(extension != ".pdf") throw new ValidationException("File type not supported");
+        if(extension != ".pdf" && extension != ".epub") throw new ValidationException("File type not supported");
 
         string fileName = Guid.NewGuid().ToString() + extension;
         string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", fileName);
