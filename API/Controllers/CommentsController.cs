@@ -71,7 +71,7 @@ public class CommentsController : ControllerBase
         
         var comment = await _context.Comments.FindAsync(id);
         if (comment is null) throw new NotFoundException("Comment not found");
-        if (comment.UserId != userId || !User.IsInRole("admin"))
+        if (comment.UserId != userId && !User.IsInRole("admin"))
             throw new ForbiddenException("You don't have permission to delete this comment");
         
         _context.Comments.Remove(comment);
