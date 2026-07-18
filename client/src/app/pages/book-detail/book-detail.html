@@ -1,1 +1,10 @@
-<p>book-detail works!</p>
+<main class="container">
+    @if(isLoading()){
+    <p>Loading...</p>
+    } @else if (book()) {
+    <div>
+        <h2>{{book()!.title}}</h2>
+    </div>
+    }
+
+</main>
