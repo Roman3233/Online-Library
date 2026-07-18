@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { Auth } from '../../services/auth';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -10,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class Login {
   private authService = inject(Auth);
+  private router = inject(Router);
   isLoading = signal(false);
   email = '';
   password = '';
@@ -19,6 +21,7 @@ export class Login {
     this.authService.login(this.email, this.password).subscribe({
       next: (data) => {
         localStorage.setItem('token', data.token);
+        this.router.navigate(['/']);
         this.isLoading.set(false);
       },
       error: (err) => {
