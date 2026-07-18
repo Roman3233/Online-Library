@@ -1,0 +1,11 @@
+<main class="container">
+    <ul>
+        @if (isLoading()) {
+        <p>Loading...</p>
+        } @else {
+        @for (book of books(); track book.id) {
+        <li>{{ book.title }}</li>
+        }
+        }
+    </ul>
+</main>
