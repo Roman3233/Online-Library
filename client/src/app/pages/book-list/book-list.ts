@@ -1,6 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
 import { BookService, Book } from '../../services/book';
-import { OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
