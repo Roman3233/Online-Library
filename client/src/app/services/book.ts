@@ -17,7 +17,7 @@ export class BookService {
   }
 
   createBook(title: string) {
-    return this.http.post(this.apiUrl + '/books', { title });
+    return this.http.post<Book>(this.apiUrl + '/books', { title });
   }
 
   uploadFile(id: number, file: File) {
