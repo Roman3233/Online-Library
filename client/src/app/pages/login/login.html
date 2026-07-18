@@ -1,1 +1,8 @@
-<p>login works!</p>
+<main class="container">
+    <header>
+        <h1>Online Library</h1>
+    </header>
+    <input type="email" [(ngModel)]="email" placeholder="Email">
+    <input type="password" [(ngModel)]="password" placeholder="Password">
+    <button (click)="onLogin()">Login</button>
+</main>
