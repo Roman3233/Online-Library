@@ -11,6 +11,10 @@ export class BookService {
   getAllBooks() {
     return this.http.get<Book[]>(this.apiUrl + '/books');
   }
+
+  getBook(id: number) {
+    return this.http.get<Book>(this.apiUrl + '/books/' + id);
+  }
 }
 
 export interface Book {
