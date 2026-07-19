@@ -1,10 +1,12 @@
 import { Component, signal, inject } from '@angular/core';
 import { BookService, Book } from '../../services/book';
 import { ActivatedRoute } from '@angular/router';
+import { Comment } from '../../services/book';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-book-detail',
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './book-detail.html',
   styleUrl: './book-detail.css',
 })
@@ -14,6 +16,9 @@ export class BookDetail {
 
   isLoading = signal(false);
   book = signal<Book | null>(null);
+  comments = signal<Comment[]>([]);
+  newComment = '';
+
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -21,6 +26,7 @@ export class BookDetail {
     this.bookService.getBook(+id!).subscribe({
       next: (data) => {
         this.book.set(data);
+        this.loadComments();
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -48,5 +54,28 @@ export class BookDetail {
       },
       error: (err) => console.log(err)
     });
+
+  }
+  loadComments() {
+    this.bookService.getAllComments(this.book()!.id).subscribe({
+
+      next: (data) => {
+        this.comments.set(data);
+      },
+      error: (err) => console.log(err)
+    });
+  }
+  onAddComment() {
+    if (this.newComment) {
+      this.bookService.addComment(this.newComment, this.book()!.id).subscribe({
+        next: () => {
+          this.newComment = '';
+          this.loadComments();
+        },
+        error: (err) => console.log(err)
+      });
+    }
   }
 }
+
+

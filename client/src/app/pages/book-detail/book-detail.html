@@ -1,13 +1,28 @@
 <main class="container">
-    @if(isLoading()){
-    <p>Loading...</p>
-    } @else if (book()) {
     <div>
-        <h2>{{book()!.title}}</h2>
+        @if(isLoading()){
+        <p>Loading...</p>
+        } @else if (book()) {
+        <div>
+            <h2>{{book()!.title}}</h2>
+        </div>
+        }
+        @if(book()){
+        <button (click)="onDownload()">Download</button>
+        }
     </div>
-    }
-    @if(book()){
-    <button (click)="onDownload()">Download</button>
-    }
-
+    <div>
+        <h3>Comments</h3>
+        @if(comments().length === 0){
+        <p>No comments yet</p>
+        }
+        @else {
+        @for(comment of comments(); track $index){
+        <p>{{comment.username}}</p> <!--TODO:add link to user profile-->
+        <p>{{comment.text}}</p>
+        }
+        }
+        <input type="text" [(ngModel)]="newComment" placeholder="Add a comment">
+        <button (click)="onAddComment()">Add Comment</button>
+    </div>
 </main>
