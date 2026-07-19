@@ -3,6 +3,7 @@ import { UserService, User } from '../../services/user';
 import { BookService, Book } from '../../services/book';
 import { AuthService } from '../../services/auth';
 import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-profile',
@@ -15,6 +16,7 @@ export class Profile {
   private bookService = inject(BookService);
   public authService = inject(AuthService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   isLoading = signal(false);
   user = signal<User | null>(null);
   books = signal<Book[]>([]);
@@ -37,6 +39,19 @@ export class Profile {
         complete: () => {
           this.isLoading.set(false);
         }
+      });
+    }
+  }
+
+  onDelete() {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.userService.deleteProfile(+id).subscribe({
+        next: () => {
+          localStorage.removeItem('token');
+          this.router.navigate(['/']);
+        },
+        error: (err) => console.log(err)
       });
     }
   }

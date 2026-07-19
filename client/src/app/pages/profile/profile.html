@@ -10,9 +10,9 @@
         }
     </div>
     <div>
-        @if(user() && authService.getCurrentUserId() === user()!.id){
-        <button>Edit</button>
-        <button>Delete</button>
+        @if(user() && (authService.getCurrentUserId() === user()!.id || authService.getCurrentUserRole() === 'admin')){
+        <button (click)="onDelete()">Delete</button>
+        <button (click)="onEdit()">Edit</button>
         }
     </div>
 </main>
