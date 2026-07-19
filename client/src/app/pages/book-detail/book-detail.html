@@ -6,5 +6,8 @@
         <h2>{{book()!.title}}</h2>
     </div>
     }
+    @if(book()){
+    <button (click)="onDownload()">Download</button>
+    }
 
 </main>

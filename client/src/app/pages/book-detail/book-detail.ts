@@ -33,4 +33,20 @@ export class BookDetail {
     });
 
   }
+
+  onDownload() {
+    const book = this.book();
+    if (!book) return;
+    this.bookService.downloadFile(book.id).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob); // creating a temporary url for the blob
+        const a = document.createElement('a'); // creating an anchor tag
+        a.href = url;
+        a.download = this.book()!.title; // setting the download attribute to the book title
+        a.click(); // triggering the download
+        URL.revokeObjectURL(url); // revoking the temporary url
+      },
+      error: (err) => console.log(err)
+    });
+  }
 }
