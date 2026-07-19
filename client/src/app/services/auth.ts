@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root',
@@ -14,5 +15,12 @@ export class Auth {
 
   login(email: string, password: string) {
     return this.http.post<{ token: string }>(this.apiUrl + '/login', { email, password });
+  }
+
+  getCurrentUserId(): number | null {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+    const decoded: any = jwtDecode(token);
+    return Number(decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier']);
   }
 }
