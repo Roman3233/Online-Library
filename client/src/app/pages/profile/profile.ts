@@ -22,8 +22,7 @@ export class Profile {
   user = signal<User | null>(null);
   books = signal<Book[]>([]);
   errorMessage = signal('');
-  currentUserName = this.user()!.username;
-
+  editUsername = '';
   isEditing = signal(false);
 
   ngOnInit() {
@@ -33,6 +32,7 @@ export class Profile {
       this.userService.getProfile(+id).subscribe({
         next: (data) => {
           this.user.set(data);
+          this.editUsername = data.username;
           this.isLoading.set(false);
         },
         error: (err) => {
@@ -72,8 +72,10 @@ export class Profile {
   onEdit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.userService.updateProfile(+id, this.user()!.username).subscribe({
+      this.userService.updateProfile(+id, this.editUsername).subscribe({
         next: () => {
+          this.user.set({ ...this.user()!, username: this.editUsername });
+          this.isEditing.set(false);
           this.router.navigate(['/profile/' + id]);
         },
         error: (err) => {
