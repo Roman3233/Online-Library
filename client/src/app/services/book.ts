@@ -25,6 +25,10 @@ export class BookService {
     formData.append('file', file);
     return this.http.post(this.apiUrl + `/books/${id}/upload`, formData);
   }
+
+  downloadFile(id: number) {
+    return this.http.get(this.apiUrl + `/books/${id}/download`, { responseType: 'blob' });
+  }
 }
 
 export interface Book {
