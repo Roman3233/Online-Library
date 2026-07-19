@@ -4,10 +4,11 @@ import { BookService, Book } from '../../services/book';
 import { AuthService } from '../../services/auth';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-profile',
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
@@ -21,7 +22,9 @@ export class Profile {
   user = signal<User | null>(null);
   books = signal<Book[]>([]);
   errorMessage = signal('');
+  currentUserName = this.user()!.username;
 
+  isEditing = signal(false);
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -51,7 +54,35 @@ export class Profile {
           localStorage.removeItem('token');
           this.router.navigate(['/']);
         },
-        error: (err) => console.log(err)
+        error: (err) => {
+          console.log(err);
+          this.isLoading.set(false);
+        },
+        complete: () => {
+          this.isLoading.set(false);
+        }
+      });
+    }
+  }
+
+  toggleEdit() {
+    this.isEditing.set(!this.isEditing());
+  }
+
+  onEdit() {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.userService.updateProfile(+id, this.user()!.username).subscribe({
+        next: () => {
+          this.router.navigate(['/profile/' + id]);
+        },
+        error: (err) => {
+          console.log(err);
+          this.isLoading.set(false);
+        },
+        complete: () => {
+          this.isLoading.set(false);
+        }
       });
     }
   }
