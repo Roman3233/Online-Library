@@ -35,7 +35,8 @@ public class CommentsController : ControllerBase
             Id = c.Id,
             Text = c.Text,
             CreatedAt = c.CreatedAt,
-            BookId = c.BookId
+            BookId = c.BookId,
+            Username = c.User?.Username
         }));
     }
 
