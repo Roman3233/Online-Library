@@ -36,6 +36,9 @@ export class BookService {
   addComment(text: string, bookId: number) {
     return this.http.post<Comment>(this.apiUrl + `/comments`, { text, bookId });
   }
+  getBooksByUserId(userId: number) {
+    return this.http.get<Book[]>(this.apiUrl + `/books/user/${userId}`);
+  }
 }
 
 export interface Book {

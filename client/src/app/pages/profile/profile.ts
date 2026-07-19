@@ -34,7 +34,19 @@ export class Profile {
         next: (data) => {
           this.user.set(data);
           this.editUsername = data.username;
-          this.isLoading.set(false);
+          this.bookService.getBooksByUserId(+id).subscribe({
+            next: (data) => {
+              this.books.set(data);
+              this.isLoading.set(false);
+            },
+            error: (err) => {
+              console.log(err);
+              this.isLoading.set(false);
+            },
+            complete: () => {
+              this.isLoading.set(false);
+            }
+          });
         },
         error: (err) => {
           console.log(err);
