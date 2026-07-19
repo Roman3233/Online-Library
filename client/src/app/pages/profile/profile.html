@@ -10,9 +10,13 @@
     </div>
     <div>
         <h2>Books uploaded by {{ user()?.username }}</h2>
-        @for(book of books(); track $index){
-        <a [routerLink]="['book', book.id]">{{ book.title }}</a>
-        }
+        <ul>
+            @for(book of books(); track $index){
+            <li>
+                <a [routerLink]="['/book', book.id]">{{ book.title }}</a>
+            </li>
+            }
+        </ul>
     </div>
     <div>
         @if(user() && (authService.getCurrentUserId() === user()!.id || authService.getCurrentUserRole() === 'admin')){
