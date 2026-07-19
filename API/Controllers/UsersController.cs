@@ -44,6 +44,24 @@ public class UsersController : ControllerBase
         });
     }
 
+    
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMe()
+    {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if(userIdClaim == null) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
+        var user = await _context.Users.FindAsync(userId);
+        if (user is null) throw new NotFoundException("User not found");
+        return Ok(new UserResponseDto {
+            Id = user.Id,
+            Username = user.Username,
+            Email = user.Email,
+            Role = user.Role,
+            RegisteredAt = user.RegisteredAt
+        });
+    }
     [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateUserDto dto)
