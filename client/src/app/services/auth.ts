@@ -30,4 +30,7 @@ export class AuthService {
     const decoded: any = jwtDecode(token);
     return decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
   }
+  logout() {
+    localStorage.removeItem('token');
+  }
 }

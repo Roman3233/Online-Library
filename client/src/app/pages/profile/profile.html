@@ -13,6 +13,7 @@
         @if(user() && (authService.getCurrentUserId() === user()!.id || authService.getCurrentUserRole() === 'admin')){
         <button (click)="onDelete()">Delete</button>
         <button (click)="toggleEdit()">Edit</button>
+        <button (click)="onLogout()">Logout</button>
         @if(isEditing()){
         <input type="text" [(ngModel)]="editUsername">
         <button (click)="onEdit()">Save</button>

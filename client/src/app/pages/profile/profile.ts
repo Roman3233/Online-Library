@@ -88,4 +88,8 @@ export class Profile {
       });
     }
   }
+  onLogout() {
+    this.authService.logout();
+    this.router.navigate(['/']);
+  }
 }
