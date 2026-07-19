@@ -29,6 +29,13 @@ export class BookService {
   downloadFile(id: number) {
     return this.http.get(this.apiUrl + `/books/${id}/download`, { responseType: 'blob' });
   }
+  getAllComments(bookId: number) {
+    return this.http.get<Comment[]>(this.apiUrl + `/comments/book/${bookId}`);
+  }
+
+  addComment(text: string, bookId: number) {
+    return this.http.post<Comment>(this.apiUrl + `/comments`, { text, bookId });
+  }
 }
 
 export interface Book {
@@ -40,4 +47,13 @@ export interface Book {
   fileName: string;
   filePath: string;
   fileSize: number;
+}
+
+export interface Comment {
+  id: number;
+  text: string;
+  createdAt: Date;
+  bookId: number;
+  userId: number;
+  userName: string;
 }
