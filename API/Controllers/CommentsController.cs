@@ -27,6 +27,18 @@ public class CommentsController : ControllerBase
         }));
     }
 
+    [HttpGet("book/{bookId}")]
+    public async Task<IActionResult> GetBookComments(int bookId)
+    {
+        var comments = await _context.Comments.Include(c=> c.User).Where(c => c.BookId == bookId).ToListAsync();
+        return Ok(comments.Select(c => new CommentSummaryDto {
+            Id = c.Id,
+            Text = c.Text,
+            CreatedAt = c.CreatedAt,
+            BookId = c.BookId
+        }));
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
