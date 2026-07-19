@@ -5,7 +5,7 @@ import { jwtDecode } from 'jwt-decode';
 @Injectable({
   providedIn: 'root',
 })
-export class Auth {
+export class AuthService {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:5164/api/auth';
 

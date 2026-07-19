@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class UserService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5164/api/user';
+  private apiUrl = 'http://localhost:5164/api/users';
 
   getMyProfile() {
     return this.http.get<User>(this.apiUrl + '/me');

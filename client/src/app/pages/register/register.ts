@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { Auth } from '../../services/auth';
+import { AuthService } from '../../services/auth';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
   styleUrl: './register.css',
 })
 export class Register {
-  private authService = inject(Auth);
+  private authService = inject(AuthService);
   private router = inject(Router);
   isLoading = signal(false);
   username = '';

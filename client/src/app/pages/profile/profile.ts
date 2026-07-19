@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { UserService, User } from '../../services/user';
 import { BookService, Book } from '../../services/book';
+import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-profile',
@@ -11,6 +12,7 @@ import { BookService, Book } from '../../services/book';
 export class Profile {
   private userService = inject(UserService);
   private bookService = inject(BookService);
+  public authService = inject(AuthService);
   isLoading = signal(false);
   user = signal<User | null>(null);
   books = signal<Book[]>([]);

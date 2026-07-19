@@ -10,5 +10,9 @@
         }
     </div>
     <div>
+        @if(user() && authService.getCurrentUserId() === user()!.id){
+        <button>Edit</button>
+        <button>Delete</button>
+        }
     </div>
 </main>
