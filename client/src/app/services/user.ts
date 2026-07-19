@@ -14,6 +14,12 @@ export class UserService {
   getProfile(id: number) {
     return this.http.get<User>(this.apiUrl + '/' + id);
   }
+  updateProfile(id: number, username: string) {
+    return this.http.put<User>(this.apiUrl + '/' + id, { username });
+  }
+  deleteProfile(id: number) {
+    return this.http.delete(this.apiUrl + '/' + id);
+  }
 }
 
 export interface User {

@@ -1,1 +1,14 @@
-<p>profile works!</p>
+<main class="container">
+    <div>
+        <h1>Profile</h1>
+        @if(isLoading()){
+        <p>Loading...</p>
+        } @else if (user()) {
+        <div>
+            <h2>{{user()!.username}}</h2>
+        </div>
+        }
+    </div>
+    <div>
+    </div>
+</main>
