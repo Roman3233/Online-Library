@@ -1,0 +1,44 @@
+<main class="container">
+    <div>
+        @if(isLoading()){
+        <p>Loading...</p>
+        } @else if (book()) {
+        <div>
+            <h2>{{book()!.title}}</h2>
+        </div>
+        }
+        @if(book()){
+        <button (click)="onDownload()">Download</button>
+        }
+    </div>
+    <div>
+        <h3>Comments</h3>
+        @if(comments().length === 0){
+        <p>No comments yet</p>
+        }
+        @else {
+        @for(comment of comments(); track $index){
+        <a [routerLink]="['/profile', comment.userId]">{{comment.username}}</a>
+        <p>{{comment.text}}
+            @if(authService.getCurrentUserId() === comment.userId || authService.getCurrentUserRole() === 'admin'){
+            <button (click)="onDeleteComment(comment.id)">Delete</button>
+            }
+        </p>
+        }
+        }
+        <input type="text" [(ngModel)]="newComment" placeholder="Add a comment">
+        <button (click)="onAddComment()">Add Comment</button>
+    </div>
+    <div>
+        @if(book() && (authService.getCurrentUserId() === book()!.userId || authService.getCurrentUserRole() ===
+        'admin')){
+        <button (click)="toggleEdit()">Update Book</button>
+        <button (click)="onDeleteBook(book()!.id)">Delete Book</button>
+        @if(isEditing()){
+        <input type="text" [(ngModel)]="editTitle">
+        <button (click)="onUpdateBook(book()!.id)">Save</button>
+        <button (click)="toggleEdit()">Cancel</button>
+        }
+        }
+    </div>
+</main>

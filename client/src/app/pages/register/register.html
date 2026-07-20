@@ -1,0 +1,10 @@
+<main class="container">
+    <header>
+        <h1>Create an account</h1>
+        <p>Create a free account to access all features</p>
+    </header>
+    <input type="text" [(ngModel)]="username" placeholder="Username">
+    <input type="email" [(ngModel)]="email" placeholder="Email">
+    <input type="password" [(ngModel)]="password" placeholder="Password">
+    <button (click)="onRegister()">Register</button>
+</main>

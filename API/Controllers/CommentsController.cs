@@ -27,6 +27,20 @@ public class CommentsController : ControllerBase
         }));
     }
 
+    [HttpGet("book/{bookId}")]
+    public async Task<IActionResult> GetBookComments(int bookId)
+    {
+        var comments = await _context.Comments.Include(c=> c.User).Where(c => c.BookId == bookId).ToListAsync();
+        return Ok(comments.Select(c => new CommentSummaryDto {
+            Id = c.Id,
+            Text = c.Text,
+            CreatedAt = c.CreatedAt,
+            BookId = c.BookId,
+            Username = c.User?.Username,
+            UserId = c.UserId
+        }));
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -36,7 +50,8 @@ public class CommentsController : ControllerBase
             Id = comment.Id,
             Text = comment.Text,
             CreatedAt = comment.CreatedAt,
-            BookId = comment.BookId
+            BookId = comment.BookId,
+            UserId = comment.UserId
         });
     }
     [Authorize]

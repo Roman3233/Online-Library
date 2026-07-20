@@ -1,0 +1,10 @@
+<main class="container">
+    <header>
+        <h1>Create a Book</h1>
+    </header>
+    <section class="form-section">
+        <input type="text" [(ngModel)]="title" placeholder="Title">
+        <input type="file" (change)="onFileChange($event)" placeholder="File">
+        <button (click)="onSubmit()">Create Book</button>
+    </section>
+</main>

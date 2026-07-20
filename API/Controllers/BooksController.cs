@@ -159,4 +159,18 @@ public class BooksController : ControllerBase
         
         return PhysicalFile(FilePath, existingBook.ContentType, existingBook.FileName);
     }
+    [HttpGet("user/{userId}")]
+    public async Task<IActionResult> GetByUserId(int userId)
+    {
+        var books = await _context.Books
+            .Where(b => b.UserId == userId)
+            .ToListAsync();
+
+        return Ok(books.Select(b => new BookSummaryDto {
+            Id = b.Id,
+            Title = b.Title,
+            UploadedAt = b.UploadedAt,
+            UserId = b.UserId
+        }));
+    }
 }

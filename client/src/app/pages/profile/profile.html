@@ -1,0 +1,32 @@
+<main class="container">
+    <div>
+        @if(isLoading()){
+        <p>Loading...</p>
+        } @else if (user()) {
+        <div>
+            <h1>{{ user()?.username }}</h1>
+        </div>
+        }
+    </div>
+    <div>
+        <h2>Books uploaded by {{ user()?.username }}</h2>
+        <ul>
+            @for(book of books(); track $index){
+            <li>
+                <a [routerLink]="['/book', book.id]">{{ book.title }}</a>
+            </li>
+            }
+        </ul>
+    </div>
+    <div>
+        @if(user() && (authService.getCurrentUserId() === user()!.id || authService.getCurrentUserRole() === 'admin')){
+        <button (click)="onDelete()">Delete</button>
+        <button (click)="toggleEdit()">Edit</button>
+        <button (click)="onLogout()">Logout</button>
+        @if(isEditing()){
+        <input type="text" [(ngModel)]="editUsername">
+        <button (click)="onEdit()">Save</button>
+        }
+        }
+    </div>
+</main>

@@ -4,7 +4,9 @@
         <p>Loading...</p>
         } @else {
         @for (book of books(); track book.id) {
-        <li>{{ book.title }}</li>
+        <li>
+            <a [routerLink]="['book', book.id]">{{ book.title }}</a>
+        </li>
         }
         }
     </ul>

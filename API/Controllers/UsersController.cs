@@ -33,7 +33,39 @@ public class UsersController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var user = await _context.Users.FindAsync(id);
+        var user = await _context.Users
+        .Include(u => u.UploadedBooks)
+        .Include(u => u.Comments)
+        .FirstOrDefaultAsync(u => u.Id == id);
+        if (user is null) throw new NotFoundException("User not found");
+        return Ok(new UserResponseDto {
+            Id = user.Id,
+            Username = user.Username,
+            Email = user.Email,
+            Role = user.Role,
+            RegisteredAt = user.RegisteredAt,
+            UploadedBooks = user.UploadedBooks.Select(b => new BookSummaryDto {
+                Id = b.Id,
+                Title = b.Title,
+                UploadedAt = b.UploadedAt
+            }).ToList(),
+            Comments = user.Comments.Select(c => new CommentSummaryDto {
+                Id = c.Id,
+                Text = c.Text,
+                CreatedAt = c.CreatedAt
+            }).ToList()
+        });
+    }
+
+    
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMe()
+    {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if(userIdClaim == null) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
+        var user = await _context.Users.FindAsync(userId);
         if (user is null) throw new NotFoundException("User not found");
         return Ok(new UserResponseDto {
             Id = user.Id,
@@ -43,7 +75,6 @@ public class UsersController : ControllerBase
             RegisteredAt = user.RegisteredAt
         });
     }
-
     [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateUserDto dto)
