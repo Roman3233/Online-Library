@@ -1,11 +1,14 @@
-<header>
-    <a routerLink="/">Home</a>
-    @if(isLoggedIn()) {
-    <a [routerLink]="['/add-book']">Add Book</a>
-    <a [routerLink]="['/profile', authService.getCurrentUserId()]">Profile</a>
-    <button (click)="onLogout()">Logout</button>
-    } @else {
-    <a [routerLink]="['/login']">Login</a>
-    <a [routerLink]="['/register']">Register</a>
-    }
+<header class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center">
+    <a [routerLink]="['/']" class="text-xl font-bold">📚 Online Library</a>
+
+    <nav class="flex gap-4 items-center">
+        @if(isLoggedIn()) {
+        <a [routerLink]="['/add-book']" class="hover:text-emerald-400">Add Book</a>
+        <a [routerLink]="['/profile', authService.getCurrentUserId()]" class="hover:text-emerald-400">Profile</a>
+        <button (click)="onLogout()" class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded">Logout</button>
+        } @else {
+        <a [routerLink]="['/login']" class="hover:text-emerald-400">Login</a>
+        <a [routerLink]="['/register']" class="bg-emerald-500 hover:bg-emerald-600 px-3 py-1 rounded">Register</a>
+        }
+    </nav>
 </header>
