@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth';
 import { RouterLink } from '@angular/router';
 import { Router } from '@angular/router';
+import { User } from '../../services/user';
 
 @Component({
   selector: 'app-book-detail',
@@ -23,6 +24,7 @@ export class BookDetail {
   book = signal<Book | null>(null);
   comments = signal<Comment[]>([]);
   newComment = '';
+  user = signal<User | null>(null);
 
 
   ngOnInit() {
@@ -66,6 +68,8 @@ export class BookDetail {
 
       next: (data) => {
         this.comments.set(data);
+        console.log('comments:', data);
+        console.log('currentUserId:', this.authService.getCurrentUserId());
       },
       error: (err) => console.log(err)
     });

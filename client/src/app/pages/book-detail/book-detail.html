@@ -18,11 +18,12 @@
         }
         @else {
         @for(comment of comments(); track $index){
-        <p>{{comment.username}}</p> <!--TODO:add link to user profile-->
-        <p>{{comment.text}}</p>
-        @if(authService.getCurrentUserId() === comment.userId || authService.getCurrentUserRole() === 'admin'){
-        <button (click)="onDeleteComment(comment.id)">Delete</button>
-        }
+        <a [routerLink]="['/profile', comment.userId]">{{comment.username}}</a>
+        <p>{{comment.text}}
+            @if(authService.getCurrentUserId() === comment.userId || authService.getCurrentUserRole() === 'admin'){
+            <button (click)="onDeleteComment(comment.id)">Delete</button>
+            }
+        </p>
         }
         }
         <input type="text" [(ngModel)]="newComment" placeholder="Add a comment">
