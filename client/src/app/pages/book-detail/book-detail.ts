@@ -18,13 +18,13 @@ export class BookDetail {
   private route = inject(ActivatedRoute);
   private bookService = inject(BookService);
   public authService = inject(AuthService);
-  //private route = inject(ActivatedRoute);
   private router = inject(Router);
   isLoading = signal(false);
   book = signal<Book | null>(null);
   comments = signal<Comment[]>([]);
   newComment = '';
   user = signal<User | null>(null);
+  isEditing = signal(false);
 
 
   ngOnInit() {
@@ -93,6 +93,17 @@ export class BookDetail {
       },
       error: (err) => console.log(err)
     });
+  }
+  onUpdateBook(id: number, title: string) {
+    this.bookService.updateBook(id, title).subscribe({
+      next: () => {
+        this.loadComments();
+      },
+      error: (err) => console.log(err)
+    });
+  }
+  toggleEdit() {
+    this.isEditing.set(!this.isEditing());
   }
 }
 

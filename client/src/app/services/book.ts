@@ -42,6 +42,12 @@ export class BookService {
   deleteComment(commentId: number) {
     return this.http.delete(this.apiUrl + `/comments/${commentId}`);
   }
+  updateBook(id: number, title: string) {
+    return this.http.put(this.apiUrl + `/books/${id}`, { title });
+  }
+  deleteBook(id: number) {
+    return this.http.delete(this.apiUrl + `/books/${id}`);
+  }
 }
 
 export interface Book {

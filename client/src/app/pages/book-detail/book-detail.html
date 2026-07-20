@@ -29,4 +29,14 @@
         <input type="text" [(ngModel)]="newComment" placeholder="Add a comment">
         <button (click)="onAddComment()">Add Comment</button>
     </div>
+    <div>
+        @if(authService.getCurrentUserId() === book()!.userId || authService.getCurrentUserRole() === 'admin'){
+        <button (click)="toggleEdit()">Update Book</button>
+        @if(isEditing()){
+        <input type="text" [(ngModel)]="book()!.title">
+        <button (click)="onUpdateBook(book()!.id, book()!.title)">Save</button>
+        <button (click)="toggleEdit()">Cancel</button>
+        }
+        }
+    </div>
 </main>
