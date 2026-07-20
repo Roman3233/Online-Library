@@ -110,6 +110,15 @@ export class BookDetail {
   toggleEdit() {
     this.isEditing.set(!this.isEditing());
   }
+
+  onDeleteBook(id: number) {
+    this.bookService.deleteBook(id).subscribe({
+      next: () => {
+        this.router.navigate(['/']);
+      },
+      error: (err) => console.log(err)
+    });
+  }
 }
 
 

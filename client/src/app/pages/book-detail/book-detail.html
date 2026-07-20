@@ -30,8 +30,10 @@
         <button (click)="onAddComment()">Add Comment</button>
     </div>
     <div>
-        @if(authService.getCurrentUserId() === book()!.userId || authService.getCurrentUserRole() === 'admin'){
+        @if(book() && (authService.getCurrentUserId() === book()!.userId || authService.getCurrentUserRole() ===
+        'admin')){
         <button (click)="toggleEdit()">Update Book</button>
+        <button (click)="onDeleteBook(book()!.id)">Delete Book</button>
         @if(isEditing()){
         <input type="text" [(ngModel)]="editTitle">
         <button (click)="onUpdateBook(book()!.id)">Save</button>
