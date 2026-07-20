@@ -1,0 +1,11 @@
+<header>
+    <a routerLink="/">Home</a>
+    @if(isLoggedIn()) {
+    <a [routerLink]="['/add-book']">Add Book</a>
+    <a [routerLink]="['/profile', authService.getCurrentUserId()]">Profile</a>
+    <button (click)="onLogout()">Logout</button>
+    } @else {
+    <a [routerLink]="['/login']">Login</a>
+    <a [routerLink]="['/register']">Register</a>
+    }
+</header>
