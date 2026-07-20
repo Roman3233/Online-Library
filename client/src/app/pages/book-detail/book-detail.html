@@ -4,40 +4,71 @@
         <p>Loading...</p>
         } @else if (book()) {
         <div>
-            <h2>{{book()!.title}}</h2>
+            <h2 class="text-2xl font-bold">{{book()!.title}}</h2>
         </div>
         }
         @if(book()){
-        <button (click)="onDownload()">Download</button>
+        <button (click)="onDownload()"
+            class="bg-emerald-500 hover:bg-emerald-600 px-4 py-2 rounded text-white">Download</button>
         }
     </div>
-    <div>
-        <h3>Comments</h3>
+    <div class="mt-8">
+        <h3 class="text-xl font-semibold mb-4">Comments</h3>
+
         @if(comments().length === 0){
-        <p>No comments yet</p>
-        }
-        @else {
-        @for(comment of comments(); track $index){
-        <a [routerLink]="['/profile', comment.userId]">{{comment.username}}</a>
-        <p>{{comment.text}}
-            @if(authService.getCurrentUserId() === comment.userId || authService.getCurrentUserRole() === 'admin'){
-            <button (click)="onDeleteComment(comment.id)">Delete</button>
+        <p class="text-gray-500">No comments yet. Be the first!</p>
+        } @else {
+        <div class="flex flex-col gap-3">
+            @for(comment of comments(); track $index){
+            <div class="bg-gray-100 rounded-lg p-4">
+                <a [routerLink]="['/profile', comment.userId]" class="font-semibold text-blue-600 hover:text-blue-800">
+                    {{ comment.username }}
+                </a>
+                <p class="mt-1 text-gray-800">{{ comment.text }}</p>
+                @if(authService.getCurrentUserId() === comment.userId || authService.getCurrentUserRole() === 'admin'){
+                <button (click)="onDeleteComment(comment.id)"
+                    class="mt-2 text-sm text-red-500 hover:text-red-700 cursor-pointer">
+                    Delete
+                </button>
+                }
+            </div>
             }
-        </p>
+        </div>
         }
-        }
-        <input type="text" [(ngModel)]="newComment" placeholder="Add a comment">
-        <button (click)="onAddComment()">Add Comment</button>
+
+        <div class="flex gap-2 mt-6">
+            <input type="text" [(ngModel)]="newComment" placeholder="Add a comment..."
+                class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
+            <button (click)="onAddComment()"
+                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer">
+                Post
+            </button>
+        </div>
     </div>
-    <div>
+    <div class="flex flex-wrap gap-2 mt-4">
         @if(book() && (authService.getCurrentUserId() === book()!.userId || authService.getCurrentUserRole() ===
         'admin')){
-        <button (click)="toggleEdit()">Update Book</button>
-        <button (click)="onDeleteBook(book()!.id)">Delete Book</button>
-        @if(isEditing()){
-        <input type="text" [(ngModel)]="editTitle">
-        <button (click)="onUpdateBook(book()!.id)">Save</button>
-        <button (click)="toggleEdit()">Cancel</button>
+
+        @if(!isEditing()){
+        <button (click)="toggleEdit()"
+            class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded cursor-pointer text-white">
+            Edit
+        </button>
+        <button (click)="onDeleteBook(book()!.id)"
+            class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded cursor-pointer text-white">
+            Delete
+        </button>
+        } @else {
+        <input type="text" [(ngModel)]="editTitle"
+            class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-500">
+        <button (click)="onUpdateBook(book()!.id)"
+            class="bg-emerald-500 hover:bg-emerald-600 px-4 py-2 rounded cursor-pointer text-white">
+            Save
+        </button>
+        <button (click)="toggleEdit()"
+            class="bg-gray-500 hover:bg-gray-600 px-4 py-2 rounded cursor-pointer text-white">
+            Cancel
+        </button>
         }
         }
     </div>
