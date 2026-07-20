@@ -1,8 +1,15 @@
 <main class="container">
     <header>
-        <h1>Online Library</h1>
+        <h1 class="text-3xl font-bold">Welcome back!</h1>
+        <p class="text-gray-500">Login to access your account</p>
     </header>
-    <input type="email" [(ngModel)]="email" placeholder="Email">
-    <input type="password" [(ngModel)]="password" placeholder="Password">
-    <button (click)="onLogin()">Login</button>
+    <input type="email" [(ngModel)]="email" placeholder="Email" class="border border-gray-300 px-2 py-2 rounded">
+    <input type="password" [(ngModel)]="password" placeholder="Password"
+        class="border border-gray-300 px-2 py-2 rounded">
+    <button (click)="onLogin()" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded text-white">
+        Login
+    </button>
+    <p class="text-sm">
+        Don't have an account? <a href="/register" class="text-blue-500 hover:underline">Register here.</a>
+    </p>
 </main>

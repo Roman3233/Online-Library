@@ -1,10 +1,14 @@
 <main class="container">
     <header>
-        <h1>Create an account</h1>
-        <p>Create a free account to access all features</p>
+        <h1 class="text-3xl font-bold">Create an account</h1>
+        <p class="text-gray-500">Create a free account to access all features</p>
     </header>
-    <input type="text" [(ngModel)]="username" placeholder="Username">
-    <input type="email" [(ngModel)]="email" placeholder="Email">
-    <input type="password" [(ngModel)]="password" placeholder="Password">
-    <button (click)="onRegister()">Register</button>
+    <input type="text" [(ngModel)]="username" placeholder="Username" class="border border-gray-300 px-2 py-2 rounded">
+    <input type="email" [(ngModel)]="email" placeholder="Email" class="border border-gray-300 px-2 py-2 rounded">
+    <input type="password" [(ngModel)]="password" placeholder="Password"
+        class="border border-gray-300 px-2 py-2 rounded">
+    <button (click)="onRegister()" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded text-white">Register</button>
+    <p class="text-sm">
+        Already have an account? <a href="/login" class="text-blue-500 hover:underline">Login here.</a>
+    </p>
 </main>

@@ -1,11 +1,13 @@
 <main class="container">
-    <ul>
+    <ul class="grid grid-cols-4 gap-4 mt-4">
         @if (isLoading()) {
         <p>Loading...</p>
         } @else {
         @for (book of books(); track book.id) {
-        <li>
-            <a [routerLink]="['book', book.id]">{{ book.title }}</a>
+        <li class="bg-white rounded-lg shadow p-4 hover:shadow-md">
+            <a [routerLink]="['book', book.id]" class="text-slate-900 font-semibold hover:text-blue-500">{{
+                book.title
+                }}</a>
         </li>
         }
         }
