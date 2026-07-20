@@ -61,4 +61,5 @@ export interface Comment {
   createdAt: Date;
   bookId: number;
   username: string;
+  userId: number;
 }

@@ -6,4 +6,5 @@ public class CommentSummaryDto
     public DateTime CreatedAt { get; set; }
     public int BookId { get; set; }
     public string? Username { get; set; }
+    public int UserId { get; set; }
 }
