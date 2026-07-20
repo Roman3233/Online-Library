@@ -4,28 +4,37 @@
         <p>Loading...</p>
         } @else if (user()) {
         <div>
-            <h1>{{ user()?.username }}</h1>
+            <h1 class="text-2xl font-bold">{{ user()?.username }}</h1>
         </div>
         }
     </div>
-    <div>
-        <h2>Books uploaded by {{ user()?.username }}</h2>
-        <ul>
+    <div class="mt-8">
+        <h2 class="text-xl font-semibold">Books uploaded by {{ user()?.username }}:</h2>
+        <ul class="mt-2">
             @for(book of books(); track $index){
-            <li>
+            <li class="hover:text-blue-400">
                 <a [routerLink]="['/book', book.id]">{{ book.title }}</a>
             </li>
             }
         </ul>
     </div>
-    <div>
+    <div class="flex gap-4 mt-8">
         @if(user() && (authService.getCurrentUserId() === user()!.id || authService.getCurrentUserRole() === 'admin')){
-        <button (click)="onDelete()">Delete</button>
-        <button (click)="toggleEdit()">Edit</button>
-        <button (click)="onLogout()">Logout</button>
+        <button (click)="onDelete()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded cursor-pointer text-white">
+            Delete
+        </button>
+        <button (click)="toggleEdit()"
+            class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded cursor-pointer text-white">
+            Edit
+        </button>
+        <button (click)="onLogout()" class="bg-gray-500 hover:bg-gray-600 px-4 py-2 rounded cursor-pointer text-white">
+            Logout
+        </button>
         @if(isEditing()){
-        <input type="text" [(ngModel)]="editUsername">
-        <button (click)="onEdit()">Save</button>
+        <input type="text" [(ngModel)]="editUsername" class="border border-gray-300 px-2 py-2 rounded">
+        <button (click)="onEdit()" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded text-white">
+            Save
+        </button>
         }
         }
     </div>
