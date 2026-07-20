@@ -23,6 +23,7 @@ export class BookDetail {
   book = signal<Book | null>(null);
   comments = signal<Comment[]>([]);
   newComment = '';
+  editTitle = '';
   user = signal<User | null>(null);
   isEditing = signal(false);
 
@@ -33,6 +34,7 @@ export class BookDetail {
     this.bookService.getBook(+id!).subscribe({
       next: (data) => {
         this.book.set(data);
+        this.editTitle = data.title;
         this.loadComments();
         this.isLoading.set(false);
       },
@@ -94,10 +96,13 @@ export class BookDetail {
       error: (err) => console.log(err)
     });
   }
-  onUpdateBook(id: number, title: string) {
-    this.bookService.updateBook(id, title).subscribe({
+  onUpdateBook(id: number) {
+    this.bookService.updateBook(id, this.editTitle).subscribe({
       next: () => {
         this.loadComments();
+        this.book.set({ ...this.book()!, title: this.editTitle });
+        this.isEditing.set(false);
+        this.router.navigate(['/book/', id]);
       },
       error: (err) => console.log(err)
     });
