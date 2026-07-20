@@ -39,6 +39,9 @@ export class BookService {
   getBooksByUserId(userId: number) {
     return this.http.get<Book[]>(this.apiUrl + `/books/user/${userId}`);
   }
+  deleteComment(commentId: number) {
+    return this.http.delete(this.apiUrl + `/comments/${commentId}`);
+  }
 }
 
 export interface Book {

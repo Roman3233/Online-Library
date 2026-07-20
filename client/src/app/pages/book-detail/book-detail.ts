@@ -3,17 +3,22 @@ import { BookService, Book } from '../../services/book';
 import { ActivatedRoute } from '@angular/router';
 import { Comment } from '../../services/book';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../services/auth';
+import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-book-detail',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './book-detail.html',
   styleUrl: './book-detail.css',
 })
 export class BookDetail {
   private route = inject(ActivatedRoute);
   private bookService = inject(BookService);
-
+  public authService = inject(AuthService);
+  //private route = inject(ActivatedRoute);
+  private router = inject(Router);
   isLoading = signal(false);
   book = signal<Book | null>(null);
   comments = signal<Comment[]>([]);
@@ -75,6 +80,15 @@ export class BookDetail {
         error: (err) => console.log(err)
       });
     }
+  }
+
+  onDeleteComment(commentId: number) {
+    this.bookService.deleteComment(commentId).subscribe({
+      next: () => {
+        this.loadComments();
+      },
+      error: (err) => console.log(err)
+    });
   }
 }
 
