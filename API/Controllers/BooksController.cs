@@ -24,6 +24,8 @@ public class BooksController : ControllerBase
             Id = b.Id,
             Title = b.Title,
             UploadedAt = b.UploadedAt,
+            Author = b.Author,
+            Description = b.Description,
             UserId = b.UserId
         }));
     }
@@ -37,6 +39,8 @@ public class BooksController : ControllerBase
             Id = book.Id,
             Title = book.Title,
             UploadedAt = book.UploadedAt,
+            Author = book.Author,
+            Description = book.Description,
             UserId = book.UserId
         });
     }
@@ -53,7 +57,9 @@ public class BooksController : ControllerBase
         {
             Title = dto.Title,
             UserId = userId,
-            UploadedAt = DateTime.UtcNow
+            UploadedAt = DateTime.UtcNow,
+            Author = dto.Author,
+            Description = dto.Description
         };
         
         _context.Books.Add(book);
@@ -75,6 +81,8 @@ public class BooksController : ControllerBase
         throw new ForbiddenException("You don't have permission to update this book");
 
         existingBook.Title = dto.Title;
+        existingBook.Author = dto.Author;
+        existingBook.Description = dto.Description;
 
         await _context.SaveChangesAsync();
         return NoContent();
@@ -97,7 +105,7 @@ public class BooksController : ControllerBase
         
         string FilePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", book.FilePath);
         if (System.IO.File.Exists(FilePath)) System.IO.File.Delete(FilePath);
-        
+
         _context.Books.Remove(book);
         await _context.SaveChangesAsync();
         return NoContent();
@@ -121,7 +129,7 @@ public class BooksController : ControllerBase
 
         string extension = Path.GetExtension(dto.File.FileName);
 
-        if(extension != ".pdf" && extension != ".epub") throw new ValidationException("File type not supported");
+        if(extension != ".pdf") throw new ValidationException("File type not supported");
 
         string fileName = Guid.NewGuid().ToString() + extension;
         string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", fileName);
@@ -173,6 +181,8 @@ public class BooksController : ControllerBase
             Id = b.Id,
             Title = b.Title,
             UploadedAt = b.UploadedAt,
+            Author = b.Author,
+            Description = b.Description,
             UserId = b.UserId
         }));
     }
