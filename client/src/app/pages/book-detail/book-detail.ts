@@ -7,6 +7,7 @@ import { AuthService } from '../../services/auth';
 import { RouterLink } from '@angular/router';
 import { Router } from '@angular/router';
 import { User } from '../../services/user';
+import { ToastService } from '../../services/toast';
 
 @Component({
   selector: 'app-book-detail',
@@ -19,6 +20,7 @@ export class BookDetail {
   private bookService = inject(BookService);
   public authService = inject(AuthService);
   private router = inject(Router);
+  private toastService = inject(ToastService);
   isLoading = signal(false);
   book = signal<Book | null>(null);
   comments = signal<Comment[]>([]);
@@ -37,13 +39,6 @@ export class BookDetail {
         this.editTitle = data.title;
         this.loadComments();
         this.isLoading.set(false);
-      },
-      error: (err) => {
-        console.log(err);
-        this.isLoading.set(false);
-      },
-      complete: () => {
-        this.isLoading.set(false);
       }
     });
 
@@ -60,8 +55,7 @@ export class BookDetail {
         a.download = this.book()!.title; // setting the download attribute to the book title
         a.click(); // triggering the download
         URL.revokeObjectURL(url); // revoking the temporary url
-      },
-      error: (err) => console.log(err)
+      }
     });
 
   }
@@ -70,10 +64,7 @@ export class BookDetail {
 
       next: (data) => {
         this.comments.set(data);
-        console.log('comments:', data);
-        console.log('currentUserId:', this.authService.getCurrentUserId());
-      },
-      error: (err) => console.log(err)
+      }
     });
   }
   onAddComment() {
@@ -82,8 +73,8 @@ export class BookDetail {
         next: () => {
           this.newComment = '';
           this.loadComments();
-        },
-        error: (err) => console.log(err)
+          this.toastService.showSuccess('Comment added successfully');
+        }
       });
     }
   }
@@ -92,8 +83,8 @@ export class BookDetail {
     this.bookService.deleteComment(commentId).subscribe({
       next: () => {
         this.loadComments();
-      },
-      error: (err) => console.log(err)
+        this.toastService.showSuccess('Comment deleted successfully');
+      }
     });
   }
   onUpdateBook(id: number) {
@@ -103,8 +94,8 @@ export class BookDetail {
         this.book.set({ ...this.book()!, title: this.editTitle });
         this.isEditing.set(false);
         this.router.navigate(['/book/', id]);
-      },
-      error: (err) => console.log(err)
+        this.toastService.showSuccess('Book updated successfully');
+      }
     });
   }
   toggleEdit() {
@@ -115,8 +106,8 @@ export class BookDetail {
     this.bookService.deleteBook(id).subscribe({
       next: () => {
         this.router.navigate(['/']);
-      },
-      error: (err) => console.log(err)
+        this.toastService.showSuccess('Book deleted successfully');
+      }
     });
   }
 }

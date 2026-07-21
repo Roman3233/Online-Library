@@ -2,6 +2,7 @@ import { Component, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BookService, Book } from '../../services/book';
 import { Router } from '@angular/router';
+import { ToastService } from '../../services/toast';
 
 @Component({
   selector: 'app-add-book',
@@ -11,6 +12,7 @@ import { Router } from '@angular/router';
 })
 export class AddBook {
   private bookService = inject(BookService);
+  private toastService = inject(ToastService);
   private router = inject(Router);
   title = '';
   selectedFile: File | null = null;
@@ -27,21 +29,10 @@ export class AddBook {
       next: (data) => {
         this.bookService.uploadFile(data.id, this.selectedFile!).subscribe({
           next: () => {
+            this.toastService.showSuccess('Book created successfully');
             this.router.navigate(['/book/' + data.id]);
-          },
-          error: (err) => {
-            console.log(err);
-          },
-          complete: () => {
-            console.log('File uploaded');
           }
         });
-      },
-      error: (err) => {
-        console.log(err);
-      },
-      complete: () => {
-        console.log('Book created');
       }
     })
   }
