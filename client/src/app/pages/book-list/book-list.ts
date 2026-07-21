@@ -20,13 +20,6 @@ export class BookList {
       next: (data) => {
         this.books.set(data);
         this.isLoading.set(false);
-      },
-      error: (err) => {
-        console.log(err);
-        this.isLoading.set(false);
-      },
-      complete: () => {
-        this.isLoading.set(false);
       }
     });
   }

@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { AuthService } from '../../services/auth';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ToastService } from '../../services/toast';
 
 
 @Component({
@@ -13,6 +14,7 @@ import { Router } from '@angular/router';
 export class Register {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private toastService = inject(ToastService);
   isLoading = signal(false);
   username = '';
   email = '';
@@ -24,13 +26,7 @@ export class Register {
       next: (data) => {
         this.router.navigate(['/login']);
         this.isLoading.set(false);
-      },
-      error: (err) => {
-        console.log(err);
-        this.isLoading.set(false);
-      },
-      complete: () => {
-        this.isLoading.set(false);
+        this.toastService.showSuccess('User registered successfully');
       }
     })
   }

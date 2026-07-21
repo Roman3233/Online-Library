@@ -6,6 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { ToastService } from '../../services/toast';
 
 @Component({
   selector: 'app-profile',
@@ -19,10 +20,10 @@ export class Profile {
   public authService = inject(AuthService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private toastService = inject(ToastService);
   isLoading = signal(false);
   user = signal<User | null>(null);
   books = signal<Book[]>([]);
-  errorMessage = signal('');
   editUsername = '';
   isEditing = signal(false);
 
@@ -38,22 +39,8 @@ export class Profile {
             next: (data) => {
               this.books.set(data);
               this.isLoading.set(false);
-            },
-            error: (err) => {
-              console.log(err);
-              this.isLoading.set(false);
-            },
-            complete: () => {
-              this.isLoading.set(false);
             }
           });
-        },
-        error: (err) => {
-          console.log(err);
-          this.isLoading.set(false);
-        },
-        complete: () => {
-          this.isLoading.set(false);
         }
       });
     }
@@ -66,13 +53,7 @@ export class Profile {
         next: () => {
           localStorage.removeItem('token');
           this.router.navigate(['/']);
-        },
-        error: (err) => {
-          console.log(err);
-          this.isLoading.set(false);
-        },
-        complete: () => {
-          this.isLoading.set(false);
+          this.toastService.showSuccess('Profile deleted successfully');
         }
       });
     }
@@ -90,13 +71,7 @@ export class Profile {
           this.user.set({ ...this.user()!, username: this.editUsername });
           this.isEditing.set(false);
           this.router.navigate(['/profile/' + id]);
-        },
-        error: (err) => {
-          console.log(err);
-          this.isLoading.set(false);
-        },
-        complete: () => {
-          this.isLoading.set(false);
+          this.toastService.showSuccess('Profile updated successfully');
         }
       });
     }
