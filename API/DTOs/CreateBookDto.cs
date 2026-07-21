@@ -11,6 +11,6 @@ public class CreateBookDto {
     public required string Author { get; set; }
     [Required(ErrorMessage = "Description is required")]
     [MaxLength(10000, ErrorMessage = "Description cannot exceed 1000 characters")]
-    [MinLength(10, ErrorMessage = "Description must be at least 10 characters")]
+    [MinLength(3, ErrorMessage = "Description must be at least 3 characters")]
     public required string Description { get; set; }
 }

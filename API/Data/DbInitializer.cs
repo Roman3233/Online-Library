@@ -47,7 +47,9 @@ public static class DbInitializer
             FilePath = file1Path,
             FileSize = file1Size,
             ContentType = "application/pdf",
-            UploadedAt = DateTime.UtcNow
+            UploadedAt = DateTime.UtcNow,
+            Description = "Clean Code: A Handbook of Agile Software Craftsmanship",
+            Author = "Robert C. Martin"
         };
 
         var(file2Path, file2Size) = SeedBookFile("Dark Tower 1.pdf");
@@ -59,7 +61,9 @@ public static class DbInitializer
             FilePath = file2Path,
             FileSize = file2Size,
             ContentType = "application/pdf",
-            UploadedAt = DateTime.UtcNow
+            UploadedAt = DateTime.UtcNow,
+            Description = "Dark Tower 1",
+            Author = "Stephen King"
         };
 
         var(file3Path, file3Size) = SeedBookFile("The Selfish Gene.pdf");
@@ -71,7 +75,9 @@ public static class DbInitializer
             FilePath = file3Path,
             FileSize = file3Size,
             ContentType = "application/pdf",
-            UploadedAt = DateTime.UtcNow
+            UploadedAt = DateTime.UtcNow,
+            Description = "The Selfish Gene",
+            Author = "Richard Dawkins"
         };
 
         context.Books.AddRange(book1, book2, book3);

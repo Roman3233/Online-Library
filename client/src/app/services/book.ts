@@ -16,8 +16,8 @@ export class BookService {
     return this.http.get<Book>(this.apiUrl + '/books/' + id);
   }
 
-  createBook(title: string) {
-    return this.http.post<Book>(this.apiUrl + '/books', { title });
+  createBook(title: string, description: string, author: string) {
+    return this.http.post<Book>(this.apiUrl + '/books', { title, description, author });
   }
 
   uploadFile(id: number, file: File) {
@@ -59,6 +59,8 @@ export interface Book {
   fileName: string;
   filePath: string;
   fileSize: number;
+  description?: string;
+  author?: string;
 }
 
 export interface Comment {
