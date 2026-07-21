@@ -24,7 +24,6 @@ export class Profile {
   isLoading = signal(false);
   user = signal<User | null>(null);
   books = signal<Book[]>([]);
-  errorMessage = signal('');
   editUsername = '';
   isEditing = signal(false);
 

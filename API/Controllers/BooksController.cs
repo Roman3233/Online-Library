@@ -94,7 +94,10 @@ public class BooksController : ControllerBase
         
         if (book.UserId != userId && !User.IsInRole("admin")) 
         throw new ForbiddenException("You don't have permission to delete this book");
-            
+        
+        string FilePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", book.FilePath);
+        if (System.IO.File.Exists(FilePath)) System.IO.File.Delete(FilePath);
+        
         _context.Books.Remove(book);
         await _context.SaveChangesAsync();
         return NoContent();
