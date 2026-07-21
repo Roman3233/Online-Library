@@ -5,4 +5,15 @@ public class CreateBookDto {
     [Required(ErrorMessage = "Title is required")]
     [MaxLength(100, ErrorMessage = "Title cannot exceed 100 characters")]
     public required string Title { get; set; }
+    [Required(ErrorMessage = "Author is required")]
+    [MaxLength(100, ErrorMessage = "Author cannot exceed 100 characters")]
+    [MinLength(3, ErrorMessage = "Author must be at least 3 characters")]
+    public required string Author { get; set; }
+    [Required(ErrorMessage = "Description is required")]
+    [MaxLength(10000, ErrorMessage = "Description cannot exceed 1000 characters")]
+    [MinLength(3, ErrorMessage = "Description must be at least 3 characters")]
+    public required string Description { get; set; }
+
+    [Required(ErrorMessage = "File is required")]
+    public IFormFile File { get; set; } = null!;
 }

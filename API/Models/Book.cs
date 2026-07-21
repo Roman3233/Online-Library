@@ -13,5 +13,6 @@ public class Book
     public string FilePath { get; set; } = string.Empty;
     public string ContentType { get; set; } = string.Empty;
     public long FileSize { get; set; } = 0;
-    
+    public string Author { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
 }

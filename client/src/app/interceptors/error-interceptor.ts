@@ -30,8 +30,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next): Observable<HttpE
           case 400:
             if (error.error && error.error.errors) {
               errorMessage = Object.values(error.error.errors).flat().join('\n');
+            } else if (error.error && error.error.detail) {
+              errorMessage = error.error.detail;
             } else {
-              errorMessage = error.error || 'Invalid request.';
+              errorMessage = 'Invalid request.';
             }
             break;
           case 500:

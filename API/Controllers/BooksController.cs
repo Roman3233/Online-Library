@@ -24,6 +24,8 @@ public class BooksController : ControllerBase
             Id = b.Id,
             Title = b.Title,
             UploadedAt = b.UploadedAt,
+            Author = b.Author,
+            Description = b.Description,
             UserId = b.UserId
         }));
     }
@@ -37,23 +39,46 @@ public class BooksController : ControllerBase
             Id = book.Id,
             Title = book.Title,
             UploadedAt = book.UploadedAt,
+            Author = book.Author,
+            Description = book.Description,
             UserId = book.UserId
         });
     }
 
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateBookDto dto)
+    public async Task<IActionResult> Create([FromForm] CreateBookDto dto)
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if(userIdClaim == null) return Unauthorized();
         var userId = int.Parse(userIdClaim);
+        if (dto.File == null || dto.File.Length == 0) throw new ValidationException("File is required");
 
+        string extension = Path.GetExtension(dto.File.FileName);
+        if(extension != ".pdf") throw new ValidationException("File type not supported");
+
+        string fileName = Guid.NewGuid().ToString() + extension;
+        string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", fileName);
+
+        if(!Directory.Exists(Path.GetDirectoryName(filePath)))
+        Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+        
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await dto.File.CopyToAsync(stream);
+        }
+        
         var book = new Book
         {
             Title = dto.Title,
             UserId = userId,
-            UploadedAt = DateTime.UtcNow
+            UploadedAt = DateTime.UtcNow,
+            Author = dto.Author,
+            Description = dto.Description,
+            FileName = fileName,
+            FilePath = fileName,
+            FileSize = dto.File.Length,
+            ContentType = dto.File.ContentType
         };
         
         _context.Books.Add(book);
@@ -75,6 +100,8 @@ public class BooksController : ControllerBase
         throw new ForbiddenException("You don't have permission to update this book");
 
         existingBook.Title = dto.Title;
+        existingBook.Author = dto.Author;
+        existingBook.Description = dto.Description;
 
         await _context.SaveChangesAsync();
         return NoContent();
@@ -97,50 +124,10 @@ public class BooksController : ControllerBase
         
         string FilePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", book.FilePath);
         if (System.IO.File.Exists(FilePath)) System.IO.File.Delete(FilePath);
-        
+
         _context.Books.Remove(book);
         await _context.SaveChangesAsync();
         return NoContent();
-    }
-    
-    [Authorize]
-    [HttpPost("{id}/upload")]
-    public async Task<IActionResult> Upload(int id, [FromForm] UploadBookDto dto)
-    {
-        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if(userIdClaim == null) return Unauthorized();
-        var userId = int.Parse(userIdClaim);
-
-        var existingBook = await _context.Books.FindAsync(id);
-
-        if(existingBook is null) throw new NotFoundException("Book not found");
-        if (existingBook.UserId != userId && !User.IsInRole("admin")) 
-        throw new ForbiddenException("You don't have permission to upload to this book");
-        
-        if(dto.File == null || dto.File.Length == 0) throw new ValidationException("File is required");
-
-        string extension = Path.GetExtension(dto.File.FileName);
-
-        if(extension != ".pdf" && extension != ".epub") throw new ValidationException("File type not supported");
-
-        string fileName = Guid.NewGuid().ToString() + extension;
-        string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", fileName);
-
-        if(!Directory.Exists(Path.GetDirectoryName(filePath)))
-        Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
-        
-        using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await dto.File.CopyToAsync(stream);
-        }
-
-        existingBook.FileName = existingBook.Title + extension;
-        existingBook.FilePath = fileName;
-        existingBook.FileSize = dto.File.Length;
-        existingBook.ContentType = dto.File.ContentType;
-
-        await _context.SaveChangesAsync();
-        return Ok(existingBook);
     }
 
     [Authorize]
@@ -173,6 +160,8 @@ public class BooksController : ControllerBase
             Id = b.Id,
             Title = b.Title,
             UploadedAt = b.UploadedAt,
+            Author = b.Author,
+            Description = b.Description,
             UserId = b.UserId
         }));
     }

@@ -15,6 +15,8 @@ export class AddBook {
   private toastService = inject(ToastService);
   private router = inject(Router);
   title = '';
+  description = '';
+  author = '';
   selectedFile: File | null = null;
 
   onFileChange(event: Event) {
@@ -25,14 +27,10 @@ export class AddBook {
   }
 
   onSubmit() {
-    this.bookService.createBook(this.title).subscribe({
+    this.bookService.createBook(this.title, this.description, this.author, this.selectedFile!).subscribe({
       next: (data) => {
-        this.bookService.uploadFile(data.id, this.selectedFile!).subscribe({
-          next: () => {
-            this.toastService.showSuccess('Book created successfully');
-            this.router.navigate(['/book/' + data.id]);
-          }
-        });
+        this.toastService.showSuccess('Book created successfully');
+        this.router.navigate(['/book/' + data.id]);
       }
     })
   }

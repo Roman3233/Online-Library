@@ -16,14 +16,13 @@ export class BookService {
     return this.http.get<Book>(this.apiUrl + '/books/' + id);
   }
 
-  createBook(title: string) {
-    return this.http.post<Book>(this.apiUrl + '/books', { title });
-  }
-
-  uploadFile(id: number, file: File) {
+  createBook(title: string, description: string, author: string, file: File) {
     const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('author', author);
     formData.append('file', file);
-    return this.http.post(this.apiUrl + `/books/${id}/upload`, formData);
+    return this.http.post<Book>(this.apiUrl + '/books', formData);
   }
 
   downloadFile(id: number) {
@@ -59,6 +58,8 @@ export interface Book {
   fileName: string;
   filePath: string;
   fileSize: number;
+  description?: string;
+  author?: string;
 }
 
 export interface Comment {
