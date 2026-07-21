@@ -13,4 +13,7 @@ public class CreateBookDto {
     [MaxLength(10000, ErrorMessage = "Description cannot exceed 1000 characters")]
     [MinLength(3, ErrorMessage = "Description must be at least 3 characters")]
     public required string Description { get; set; }
+
+    [Required(ErrorMessage = "File is required")]
+    public IFormFile File { get; set; } = null!;
 }

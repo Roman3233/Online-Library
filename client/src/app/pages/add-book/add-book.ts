@@ -27,14 +27,10 @@ export class AddBook {
   }
 
   onSubmit() {
-    this.bookService.createBook(this.title, this.description, this.author).subscribe({
+    this.bookService.createBook(this.title, this.description, this.author, this.selectedFile!).subscribe({
       next: (data) => {
-        this.bookService.uploadFile(data.id, this.selectedFile!).subscribe({
-          next: () => {
-            this.toastService.showSuccess('Book created successfully');
-            this.router.navigate(['/book/' + data.id]);
-          }
-        });
+        this.toastService.showSuccess('Book created successfully');
+        this.router.navigate(['/book/' + data.id]);
       }
     })
   }
