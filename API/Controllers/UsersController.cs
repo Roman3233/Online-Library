@@ -85,7 +85,7 @@ public class UsersController : ControllerBase
 
         var existingUser = await _context.Users.FindAsync(id);
         if (existingUser is null) throw new NotFoundException("User not found");
-        if (existingUser.Id != userId || !User.IsInRole("admin")) 
+        if (existingUser.Id != userId && !User.IsInRole("admin")) 
             throw new ForbiddenException("You don't have permission to update this user");
 
         existingUser.Username = dto.Username;
