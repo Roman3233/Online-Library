@@ -3,10 +3,11 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { ToastService } from '../services/toast';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next): Observable<HttpEvent<unknown>> => {
   const router = inject(Router);
-
+  const toastService = inject(ToastService);
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
       let errorMessage = 'Something went wrong';
@@ -15,7 +16,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next): Observable<HttpE
           case 401:
             localStorage.removeItem('token');
             router.navigate(['/login']);
-            errorMessage = 'Session expired. Please log in again.';
+            errorMessage = 'Please log in to continue.';
             break;
           case 403:
             errorMessage = 'You do not have access to this action.';
@@ -44,7 +45,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next): Observable<HttpE
             break;
         }
       }
-      alert(errorMessage);
+      toastService.showError(errorMessage);
       console.error(errorMessage);
       return throwError(() => error);
     })
