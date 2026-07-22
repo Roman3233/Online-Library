@@ -11,5 +11,5 @@ public class User
     public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     public DateTime RegisteredAt { get; set; } = DateTime.UtcNow;
 
-    public List<BookLike> Likes { get; set; } = [];
+    public ICollection<BookLike> Likes { get; set; } = new List<BookLike>();
 }

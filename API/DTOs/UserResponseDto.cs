@@ -9,5 +9,5 @@ public class UserResponseDto {
     public ICollection<BookSummaryDto> UploadedBooks { get; set; } = new List<BookSummaryDto>();
     public ICollection<CommentSummaryDto> Comments { get; set; } = new List<CommentSummaryDto>();
     public DateTime RegisteredAt { get; set; }
-    public ICollection<int> LikedBooksIds { get; set; } = new List<int>();
+    public ICollection<BookSummaryDto> LikedBooks { get; set; } = new List<BookSummaryDto>();
 }

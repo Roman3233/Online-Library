@@ -48,7 +48,10 @@ public class UsersController : ControllerBase
             Email = user.Email,
             Role = user.Role,
             RegisteredAt = user.RegisteredAt,
-            LikedBooksIds = user.Likes.Select(l => l.BookId).ToList(),
+            LikedBooks = user.Likes.Select(l => new BookSummaryDto { 
+                Id = l.Book.Id,
+                Title = l.Book.Title
+            }).ToList(),
             UploadedBooks = user.UploadedBooks.Select(b => new BookSummaryDto {
                 Id = b.Id,
                 Title = b.Title,
