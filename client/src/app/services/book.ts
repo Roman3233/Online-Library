@@ -65,6 +65,8 @@ export interface Book {
   fileSize: number;
   description?: string;
   author?: string;
+  hasLiked?: boolean;
+  likeCount?: number;
 }
 
 export interface Comment {

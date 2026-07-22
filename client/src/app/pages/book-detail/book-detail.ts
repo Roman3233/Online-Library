@@ -110,6 +110,14 @@ export class BookDetail {
       }
     });
   }
+  onLike(id: number) {
+    this.bookService.likeBook(id).subscribe({
+      next: (data) => {
+        this.book.set({ ...this.book()!, hasLiked: data.hasLiked, likeCount: data.likeCount });
+        this.toastService.showSuccess(data.hasLiked ? 'Book liked successfully' : 'Book unliked successfully');
+      }
+    });
+  }
 }
 
 
