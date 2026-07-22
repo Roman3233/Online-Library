@@ -165,4 +165,33 @@ public class BooksController : ControllerBase
             UserId = b.UserId
         }));
     }
+
+    [Authorize]
+    [HttpPost("{id}/like")]
+    public async Task<IActionResult> Like(int id)
+    {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if(userIdClaim == null) return Unauthorized();
+        var userId = int.Parse(userIdClaim);
+
+        var existingBook = await _context.Books.FindAsync(id);
+        
+        if(existingBook is null) throw new NotFoundException("Book not found");
+        
+        bool hasLiked = await _context.BookLikes.AnyAsync(l => l.BookId == id && l.UserId == userId);
+        if (hasLiked)
+        {
+            _context.BookLikes.Remove(new BookLike { BookId = id, UserId = userId });
+            hasLiked = false;
+        }
+        else
+        {
+            _context.BookLikes.Add(new BookLike { BookId = id, UserId = userId });
+            hasLiked = true;
+        }
+        await _context.SaveChangesAsync();
+
+        var likeCount = await _context.BookLikes.Where(l => l.BookId == id).CountAsync();
+        return Ok(new { hasLiked, likeCount });         
+    }         
 }

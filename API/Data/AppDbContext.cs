@@ -9,4 +9,10 @@ public class AppDbContext : DbContext
     public DbSet<Book> Books { get; set; } = default!;
     public DbSet<User> Users { get; set; } = default!;
     public DbSet<Comment> Comments { get; set; } = default!;
+    public DbSet<BookLike> BookLikes { get; set; } = default!;
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<BookLike>().HasKey(b => new { b.BookId, b.UserId });
+    }
 }
