@@ -29,4 +29,5 @@ export interface User {
   password: string;
   role: string;
   registeredAt: Date;
+  likedBooksIds: number[];
 }

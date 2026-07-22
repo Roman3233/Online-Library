@@ -10,4 +10,6 @@ public class User
     public ICollection<Book> UploadedBooks { get; set; } = new List<Book>();
     public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     public DateTime RegisteredAt { get; set; } = DateTime.UtcNow;
+
+    public List<BookLike> Likes { get; set; } = [];
 }

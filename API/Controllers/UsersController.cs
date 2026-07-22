@@ -33,9 +33,13 @@ public class UsersController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        int userId = userIdClaim == null ? 0 : int.Parse(userIdClaim);
+        
         var user = await _context.Users
         .Include(u => u.UploadedBooks)
         .Include(u => u.Comments)
+        .Include(u => u.Likes)
         .FirstOrDefaultAsync(u => u.Id == id);
         if (user is null) throw new NotFoundException("User not found");
         return Ok(new UserResponseDto {
@@ -44,6 +48,7 @@ public class UsersController : ControllerBase
             Email = user.Email,
             Role = user.Role,
             RegisteredAt = user.RegisteredAt,
+            LikedBooksIds = user.Likes.Select(l => l.BookId).ToList(),
             UploadedBooks = user.UploadedBooks.Select(b => new BookSummaryDto {
                 Id = b.Id,
                 Title = b.Title,
