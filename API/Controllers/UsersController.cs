@@ -40,6 +40,7 @@ public class UsersController : ControllerBase
         .Include(u => u.UploadedBooks)
         .Include(u => u.Comments)
         .Include(u => u.Likes)
+        .ThenInclude(l => l.Book)
         .FirstOrDefaultAsync(u => u.Id == id);
         if (user is null) throw new NotFoundException("User not found");
         return Ok(new UserResponseDto {

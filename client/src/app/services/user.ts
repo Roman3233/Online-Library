@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Book } from './book';
 
 @Injectable({
   providedIn: 'root',
@@ -29,4 +30,5 @@ export interface User {
   password: string;
   role: string;
   registeredAt: Date;
+  likedBooks: Book[];
 }

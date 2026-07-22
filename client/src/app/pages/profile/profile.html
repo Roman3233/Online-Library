@@ -19,16 +19,16 @@
         </ul>
     </div>
 
-    <!-- <div class="mt-8">
+    <div class="mt-8">
         <h2 class="text-xl font-semibold">Books liked by {{ user()?.username }}:</h2>
         <ul class="mt-2">
-            @for(book of user()?.likedBooksIds; track $index){
+            @for(book of user()?.likedBooks; track $index){
             <li class="hover:text-blue-400">
-                <a [routerLink]="['/book', book]"></a>
+                <a [routerLink]="['/book', book.id]">{{ book.title }}</a>
             </li>
             }
         </ul>
-    </div> -->
+    </div>
 
     <div class="flex gap-4 mt-8">
         @if(user() && (authService.getCurrentUserId() === user()!.id || authService.getCurrentUserRole() === 'admin')){
