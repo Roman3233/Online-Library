@@ -47,6 +47,11 @@ export class BookService {
   deleteBook(id: number) {
     return this.http.delete(this.apiUrl + `/books/${id}`);
   }
+  likeBook(id: number) {
+    return this.http.post<{ hasLiked: boolean, likeCount: number }>
+      (this.apiUrl + `/books/${id}/like`, {}
+      );
+  }
 }
 
 export interface Book {
