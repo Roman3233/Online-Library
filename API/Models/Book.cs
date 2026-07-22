@@ -15,4 +15,5 @@ public class Book
     public long FileSize { get; set; } = 0;
     public string Author { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public List<BookLike> Likes { get; set; } = [];
 }

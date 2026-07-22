@@ -9,4 +9,6 @@ public class BookSummaryDto
     public string Description { get; set; } = string.Empty;
     public string? Username { get; set; }
     public int UserId { get; set; }
+    public bool HasLiked { get; set; }
+    public int LikeCount { get; set; }
 }

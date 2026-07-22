@@ -12,7 +12,17 @@
         @if(book()){
         <button (click)="onDownload()"
             class="bg-emerald-500 hover:bg-emerald-600 px-4 py-2 rounded text-white">Download</button>
+
+        @if(book()?.hasLiked){
+        <button type="button" (click)="onLike(book()!.id)"
+            class="bg-pink-500 hover:bg-pink-600 px-4 py-2 rounded text-white">Unlike</button>
+        } @else {
+        <button type="button" (click)="onLike(book()!.id)"
+            class="bg-pink-500 hover:bg-pink-600 px-4 py-2 rounded text-white">Like</button>
         }
+        }
+        <p>{{book()?.likeCount}} likes</p>
+
     </div>
     <div class="mt-8">
         <h3 class="text-xl font-semibold mb-4">Comments</h3>
