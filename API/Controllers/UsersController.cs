@@ -33,9 +33,6 @@ public class UsersController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        int userId = userIdClaim == null ? 0 : int.Parse(userIdClaim);
-        
         var user = await _context.Users
         .Include(u => u.UploadedBooks)
         .Include(u => u.Comments)
