@@ -1,6 +1,10 @@
 <header class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center">
     <a [routerLink]="['/']" class="text-xl font-bold">📚 Online Library</a>
-
+    <div class="flex gap-2">
+        <input type="text" [(ngModel)]="searchQuery" placeholder="Search books..."
+            class=" px-2 py-1 rounded bg-white text-black" />
+        <button (click)="onSearch()" class="bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded">Search</button>
+    </div>
     <nav class="flex gap-4 items-center">
         @if(isLoggedIn()) {
         <a [routerLink]="['/add-book']" class="hover:text-emerald-400">Add Book</a>
@@ -11,4 +15,5 @@
         <a [routerLink]="['/register']" class="bg-emerald-500 hover:bg-emerald-600 px-3 py-1 rounded">Register</a>
         }
     </nav>
+
 </header>

@@ -36,6 +36,8 @@ public class UsersController : ControllerBase
         var user = await _context.Users
         .Include(u => u.UploadedBooks)
         .Include(u => u.Comments)
+        .Include(u => u.Likes)
+        .ThenInclude(l => l.Book)
         .FirstOrDefaultAsync(u => u.Id == id);
         if (user is null) throw new NotFoundException("User not found");
         return Ok(new UserResponseDto {
@@ -44,6 +46,10 @@ public class UsersController : ControllerBase
             Email = user.Email,
             Role = user.Role,
             RegisteredAt = user.RegisteredAt,
+            LikedBooks = user.Likes.Select(l => new BookSummaryDto { 
+                Id = l.Book.Id,
+                Title = l.Book.Title
+            }).ToList(),
             UploadedBooks = user.UploadedBooks.Select(b => new BookSummaryDto {
                 Id = b.Id,
                 Title = b.Title,

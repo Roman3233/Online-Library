@@ -15,16 +15,23 @@ public class BooksController : ControllerBase
     private readonly AppDbContext _context;
 
     public BooksController(AppDbContext context) { _context = context; }
-
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] string? search)
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
         int userId = userIdClaim == null ? 0 : int.Parse(userIdClaim);
         
-        var books = await _context.Books.Include(b => b.User).Include(b => b.Likes).ToListAsync();
+        IQueryable<Book> books = _context.Books.Include(b => b.User).Include(b => b.Likes);
+        if (!string.IsNullOrEmpty(search)) {
+            search = search.ToLower();
+            books = books.Where(b => b.Title.ToLower().Contains(search) || 
+            (b.Author != null && b.Author.ToLower().Contains(search)) || 
+            (b.Description != null && b.Description.ToLower().Contains(search)));
+        }
         
-        return Ok(books.Select(b => new BookSummaryDto {
+        var filteredBooks = await books.ToListAsync();
+
+        return Ok(filteredBooks.Select(b => new BookSummaryDto {
             Id = b.Id,
             Title = b.Title,
             UploadedAt = b.UploadedAt,

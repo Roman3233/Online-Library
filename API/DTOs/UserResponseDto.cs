@@ -1,4 +1,5 @@
 namespace API.DTOs;
+using API.Models;
 
 public class UserResponseDto {
     public int Id { get; set; }
@@ -8,4 +9,5 @@ public class UserResponseDto {
     public ICollection<BookSummaryDto> UploadedBooks { get; set; } = new List<BookSummaryDto>();
     public ICollection<CommentSummaryDto> Comments { get; set; } = new List<CommentSummaryDto>();
     public DateTime RegisteredAt { get; set; }
+    public ICollection<BookSummaryDto> LikedBooks { get; set; } = new List<BookSummaryDto>();
 }
