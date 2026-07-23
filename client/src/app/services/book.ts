@@ -8,7 +8,10 @@ export class BookService {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:5164/api';
 
-  getAllBooks() {
+  getAllBooks(search?: string) {
+    if (search) {
+      return this.http.get<Book[]>(this.apiUrl + '/books' + `?search=${search}`);
+    }
     return this.http.get<Book[]>(this.apiUrl + '/books');
   }
 

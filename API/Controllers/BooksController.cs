@@ -6,8 +6,6 @@ using API.Data;
 using API.Models;
 using API.DTOs;
 using API.Middleware.Exceptions;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace API.Controllers;
 [ApiController]
@@ -26,7 +24,9 @@ public class BooksController : ControllerBase
         IQueryable<Book> books = _context.Books.Include(b => b.User).Include(b => b.Likes);
         if (!string.IsNullOrEmpty(search)) {
             search = search.ToLower();
-            books = books.Where(b => b.Title.ToLower().Contains(search) || b.Author.ToLower().Contains(search) || b.Description.ToLower().Contains(search));
+            books = books.Where(b => b.Title.ToLower().Contains(search) || 
+            (b.Author != null && b.Author.ToLower().Contains(search)) || 
+            (b.Description != null && b.Description.ToLower().Contains(search)));
         }
         
         var filteredBooks = await books.ToListAsync();
