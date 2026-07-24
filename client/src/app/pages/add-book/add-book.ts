@@ -18,20 +18,24 @@ export class AddBook {
   description = '';
   author = '';
   selectedFile: File | null = null;
+  coverFile: File | null = null;
 
-  onFileChange(event: Event) {
+  getFile(event: Event): File | null {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-      this.selectedFile = input.files[0];
-    }
+    return input.files?.[0] || null;
   }
 
   onSubmit() {
-    this.bookService.createBook(this.title, this.description, this.author, this.selectedFile!).subscribe({
+    if (!this.selectedFile) {
+      this.toastService.showError('Please choose a PDF file.');
+      return;
+    }
+
+    this.bookService.createBook(this.title, this.description, this.author, this.selectedFile, this.coverFile).subscribe({
       next: (data) => {
         this.toastService.showSuccess('Book created successfully');
         this.router.navigate(['/book/' + data.id]);
       }
-    })
+    });
   }
 }

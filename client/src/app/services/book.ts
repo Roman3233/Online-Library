@@ -19,12 +19,15 @@ export class BookService {
     return this.http.get<Book>(this.apiUrl + '/books/' + id);
   }
 
-  createBook(title: string, description: string, author: string, file: File) {
+  createBook(title: string, description: string, author: string, file: File, coverFile?: File | null) {
     const formData = new FormData();
     formData.append('title', title);
     formData.append('description', description);
     formData.append('author', author);
     formData.append('file', file);
+    if (coverFile) {
+      formData.append('Cover', coverFile);
+    }
     return this.http.post<Book>(this.apiUrl + '/books', formData);
   }
 
