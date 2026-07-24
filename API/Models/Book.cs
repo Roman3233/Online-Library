@@ -1,5 +1,6 @@
 namespace API.Models;
 
+
 public class Book
 {
     public int Id { get; set; }
@@ -16,4 +17,7 @@ public class Book
     public string Author { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public List<BookLike> Likes { get; set; } = [];
+    public string CoverFileName { get; set; } = "default.jpg";
+    public string CoverFilePath { get; set; } = "default.jpg";
+    public string CoverContentType { get; set; } = "image/jpeg";
 }
