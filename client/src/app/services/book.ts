@@ -70,6 +70,7 @@ export interface Book {
   author?: string;
   hasLiked?: boolean;
   likeCount?: number;
+  coverUrl?: string;
 }
 
 export interface Comment {

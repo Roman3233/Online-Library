@@ -39,7 +39,8 @@ public class BooksController : ControllerBase
             Description = b.Description,
             UserId = b.UserId,
             HasLiked = b.Likes.Any(l => l.UserId == userId),
-            LikeCount = b.Likes.Count
+            LikeCount = b.Likes.Count,
+            CoverUrl = $"http://localhost:5164/Resources/Covers/{b.CoverFilePath}"
         }));
     }
 
@@ -63,7 +64,8 @@ public class BooksController : ControllerBase
             Description = book.Description,
             UserId = book.UserId,
             HasLiked = hasLiked,
-            LikeCount = likeCount
+            LikeCount = likeCount,
+            CoverUrl = $"http://localhost:5164/Resources/Covers/{book.CoverFilePath}"
         });
     }
 
