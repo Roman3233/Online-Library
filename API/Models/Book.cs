@@ -19,5 +19,5 @@ public class Book
     public List<BookLike> Likes { get; set; } = [];
     public string CoverFileName { get; set; } = "default.jpg";
     public string CoverFilePath { get; set; } = "default.jpg";
-    public string CoverContentType { get; set; } = "image/jpeg";
+    public string CoverContentType { get; set; } = "image/jpg";
 }

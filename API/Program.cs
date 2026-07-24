@@ -81,8 +81,8 @@ var app = builder.Build();
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
-        Path.Combine(builder.Environment.ContentRootPath, "Resources")),
-    RequestPath = "/Resources"
+        Path.Combine(builder.Environment.ContentRootPath, "Resources", "Covers")),
+    RequestPath = "/Resources/Covers"
 });
 
 if (app.Environment.IsDevelopment())

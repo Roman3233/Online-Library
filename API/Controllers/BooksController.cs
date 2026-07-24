@@ -92,17 +92,19 @@ public class BooksController : ControllerBase
 
         string coverFileName = "default.jpg";
         string coverFilePath = "default.jpg";
-        string coverContentType = "image/jpeg";
+        string coverContentType = "image/jpg";
         
         if (dto.Cover != null && dto.Cover.Length > 0) {
-            coverContentType = Path.GetExtension(dto.Cover.FileName);
-            coverFileName = Guid.NewGuid().ToString() + coverContentType;
-            coverFilePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Covers", coverFileName);
+            string coverExtension = Path.GetExtension(dto.Cover.FileName);
+            coverFilePath = Guid.NewGuid().ToString() + coverExtension;
+            coverFileName = dto.Cover.FileName;
+            string physicalCoverPath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Covers", coverFilePath);
+            coverContentType = dto.Cover.ContentType;
 
-            if(!Directory.Exists(Path.GetDirectoryName(coverFilePath)))
-            Directory.CreateDirectory(Path.GetDirectoryName(coverFilePath)!);
+            if(!Directory.Exists(Path.GetDirectoryName(physicalCoverPath)))
+            Directory.CreateDirectory(Path.GetDirectoryName(physicalCoverPath)!);
             
-            using (var stream = new FileStream(coverFilePath, FileMode.Create))
+            using (var stream = new FileStream(physicalCoverPath, FileMode.Create))
             {
                 await dto.Cover.CopyToAsync(stream);
             }
