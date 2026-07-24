@@ -169,6 +169,12 @@ public class BooksController : ControllerBase
         
         string FilePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", book.FilePath);
         if (System.IO.File.Exists(FilePath)) System.IO.File.Delete(FilePath);
+        
+        if(book.CoverFilePath != "default.jpg")
+        {
+            string CoverPath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Covers", book.CoverFilePath);
+            if (System.IO.File.Exists(CoverPath)) System.IO.File.Delete(CoverPath);
+        }
 
         _context.Books.Remove(book);
         await _context.SaveChangesAsync();
