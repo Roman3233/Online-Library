@@ -135,7 +135,7 @@ public class BooksController : ControllerBase
 
     [Authorize]
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateBookDto dto)
+    public async Task<IActionResult> Update(int id, [FromForm] UpdateBookDto dto)
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if(userIdClaim == null) return Unauthorized();
@@ -149,7 +149,44 @@ public class BooksController : ControllerBase
         existingBook.Title = dto.Title;
         existingBook.Author = dto.Author;
         existingBook.Description = dto.Description;
+        
+        if(dto.Cover != null) {
+            string coverExtension = Path.GetExtension(dto.Cover.FileName);
+            string coverFilePath = Guid.NewGuid().ToString() + coverExtension;
+            string physicalCoverPath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Covers", coverFilePath);
+            string coverContentType = dto.Cover.ContentType;
 
+            if(!Directory.Exists(Path.GetDirectoryName(physicalCoverPath)))
+            Directory.CreateDirectory(Path.GetDirectoryName(physicalCoverPath)!);
+            
+            using (var stream = new FileStream(physicalCoverPath, FileMode.Create))
+            {
+                await dto.Cover.CopyToAsync(stream);
+            }
+
+            existingBook.CoverFileName = dto.Cover.FileName;
+            existingBook.CoverFilePath = coverFilePath;
+            existingBook.CoverContentType = coverContentType;
+        }
+        if(dto.File != null) {
+            string extension = Path.GetExtension(dto.File.FileName);
+            if(extension != ".pdf") throw new ValidationException("File type not supported");
+
+            string fileName = Guid.NewGuid().ToString() + extension;
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", fileName);
+
+            if(!Directory.Exists(Path.GetDirectoryName(filePath)))
+            Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+            
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await dto.File.CopyToAsync(stream);
+            }
+            existingBook.FileName = dto.File.FileName;
+            existingBook.FilePath = fileName;
+            existingBook.FileSize = dto.File.Length;
+            existingBook.ContentType = dto.File.ContentType;
+        }
         await _context.SaveChangesAsync();
         return NoContent();
     }
