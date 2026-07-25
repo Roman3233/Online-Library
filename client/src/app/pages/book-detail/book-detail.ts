@@ -41,6 +41,8 @@ export class BookDetail {
       next: (data) => {
         this.book.set(data);
         this.editTitle = data.title;
+        this.editDescription = data.description ?? '';
+        this.editAuthor = data.author ?? '';
         this.loadComments();
         this.isLoading.set(false);
       }
@@ -136,5 +138,4 @@ export class BookDetail {
     });
   }
 }
-
 
