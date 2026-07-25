@@ -72,7 +72,15 @@
             Delete
         </button>
         } @else {
-        <input type="text" [(ngModel)]="editTitle"
+        <input type="text" [(ngModel)]="editTitle" placeholder="Enter new title"
+            class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <input type="text" [(ngModel)]="editDescription" placeholder="Enter new description"
+            class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <input type="text" [(ngModel)]="editAuthor" placeholder="Enter new author"
+            class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <input type="file" (change)="onCoverChange($event)" placeholder="Select new cover image"
+            class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <input type="file" (change)="onFileChange($event)" placeholder="Select new book file"
             class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
         <button (click)="onUpdateBook(book()!.id)"
             class="bg-emerald-500 hover:bg-emerald-600 px-4 py-2 rounded cursor-pointer text-white">

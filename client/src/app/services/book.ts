@@ -47,8 +47,18 @@ export class BookService {
   deleteComment(commentId: number) {
     return this.http.delete(this.apiUrl + `/comments/${commentId}`);
   }
-  updateBook(id: number, title: string) {
-    return this.http.put(this.apiUrl + `/books/${id}`, { title });
+  updateBook(id: number, title: string, description: string, author: string, coverFile?: File | null, file?: File | null) {
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('author', author);
+    if (coverFile) {
+      formData.append('Cover', coverFile);
+    }
+    if (file) {
+      formData.append('File', file);
+    }
+    return this.http.put(this.apiUrl + `/books/${id}`, formData);
   }
   deleteBook(id: number) {
     return this.http.delete(this.apiUrl + `/books/${id}`);

@@ -12,10 +12,10 @@ public class UpdateBookDto {
     public required string Author { get; set; }
     [Required(ErrorMessage = "Description is required")]
     [MaxLength(10000, ErrorMessage = "Description cannot exceed 1000 characters")]
-    [MinLength(10, ErrorMessage = "Description must be at least 10 characters")]
+    [MinLength(3, ErrorMessage = "Description must be at least 10 characters")]
     public required string Description { get; set; }
-    [Required(ErrorMessage = "ImgUrl is required")]
-    public required string ImgUrl { get; set; }
+    //[Required(ErrorMessage = "ImgUrl is required")]
+    //public required string ImgUrl { get; set; }
     public IFormFile? Cover  { get; set; } = null;
     public IFormFile? File { get; set; } = null;
 }
