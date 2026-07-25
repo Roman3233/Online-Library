@@ -78,38 +78,16 @@ public class BooksController : ControllerBase
         var userId = int.Parse(userIdClaim);
         if (dto.File == null || dto.File.Length == 0) throw new ValidationException("File is required");
 
-        string extension = Path.GetExtension(dto.File.FileName);
-        if(extension != ".pdf") throw new ValidationException("File type not supported");
-
-        string fileName = Guid.NewGuid().ToString() + extension;
-        string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", fileName);
-
-        if(!Directory.Exists(Path.GetDirectoryName(filePath)))
-        Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
-        
-        using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await dto.File.CopyToAsync(stream);
-        }
+        string fileName = await SaveFileAsync(dto.File, "Books");
 
         string coverFileName = "default.jpg";
         string coverFilePath = "default.jpg";
         string coverContentType = "image/jpg";
         
         if (dto.Cover != null && dto.Cover.Length > 0) {
-            string coverExtension = Path.GetExtension(dto.Cover.FileName);
-            coverFilePath = Guid.NewGuid().ToString() + coverExtension;
+            coverFilePath = await SaveCoverAsync(dto.Cover);
             coverFileName = dto.Cover.FileName;
-            string physicalCoverPath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Covers", coverFilePath);
             coverContentType = dto.Cover.ContentType;
-
-            if(!Directory.Exists(Path.GetDirectoryName(physicalCoverPath)))
-            Directory.CreateDirectory(Path.GetDirectoryName(physicalCoverPath)!);
-            
-            using (var stream = new FileStream(physicalCoverPath, FileMode.Create))
-            {
-                await dto.Cover.CopyToAsync(stream);
-            }
         }
         
         var book = new Book
@@ -135,7 +113,7 @@ public class BooksController : ControllerBase
 
     [Authorize]
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateBookDto dto)
+    public async Task<IActionResult> Update(int id, [FromForm] UpdateBookDto dto)
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if(userIdClaim == null) return Unauthorized();
@@ -149,9 +127,55 @@ public class BooksController : ControllerBase
         existingBook.Title = dto.Title;
         existingBook.Author = dto.Author;
         existingBook.Description = dto.Description;
-
+        
+        if(dto.Cover != null) {
+            string coverFileName = await SaveCoverAsync(dto.Cover);
+            existingBook.CoverFileName = dto.Cover.FileName;
+            existingBook.CoverFilePath = coverFileName;
+            existingBook.CoverContentType = dto.Cover.ContentType;
+        }
+        if(dto.File != null) {
+            string fileName = await SaveFileAsync(dto.File, "Books");
+            existingBook.FileName = dto.File.FileName;
+            existingBook.FilePath = fileName;
+            existingBook.FileSize = dto.File.Length;
+            existingBook.ContentType = dto.File.ContentType;
+        }
         await _context.SaveChangesAsync();
         return NoContent();
+    }
+
+    private async Task<string> SaveFileAsync(IFormFile file, string folder)
+    {
+        string extension = Path.GetExtension(file.FileName);
+        if(extension != ".pdf") throw new ValidationException("File type not supported");
+
+        string fileName = Guid.NewGuid().ToString() + extension;
+        string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", folder, fileName);
+
+        await WriteFileAsync(filePath, file);
+
+        return fileName;
+    }
+
+    private async Task<string> SaveCoverAsync(IFormFile file)
+    {
+        string extension = Path.GetExtension(file.FileName);
+        string fileName = Guid.NewGuid().ToString() + extension;
+        string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Covers", fileName);
+
+        await WriteFileAsync(filePath, file);
+
+        return fileName;
+    }
+
+    private async Task WriteFileAsync(string oldFilePath, IFormFile file)
+    {
+         if (!Directory.Exists(Path.GetDirectoryName(oldFilePath)))
+            Directory.CreateDirectory(Path.GetDirectoryName(oldFilePath)!);
+
+        using var stream = new FileStream(oldFilePath, FileMode.Create);
+        await file.CopyToAsync(stream);
     }
 
     [Authorize]
