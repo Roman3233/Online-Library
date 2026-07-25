@@ -11,4 +11,5 @@ public class BookSummaryDto
     public int UserId { get; set; }
     public bool HasLiked { get; set; }
     public int LikeCount { get; set; }
+    public string? CoverUrl { get; set; }
 }

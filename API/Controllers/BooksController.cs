@@ -39,7 +39,8 @@ public class BooksController : ControllerBase
             Description = b.Description,
             UserId = b.UserId,
             HasLiked = b.Likes.Any(l => l.UserId == userId),
-            LikeCount = b.Likes.Count
+            LikeCount = b.Likes.Count,
+            CoverUrl = $"http://localhost:5164/Resources/Covers/{b.CoverFilePath}"
         }));
     }
 
@@ -63,7 +64,8 @@ public class BooksController : ControllerBase
             Description = book.Description,
             UserId = book.UserId,
             HasLiked = hasLiked,
-            LikeCount = likeCount
+            LikeCount = likeCount,
+            CoverUrl = $"http://localhost:5164/Resources/Covers/{book.CoverFilePath}"
         });
     }
 
@@ -89,6 +91,26 @@ public class BooksController : ControllerBase
         {
             await dto.File.CopyToAsync(stream);
         }
+
+        string coverFileName = "default.jpg";
+        string coverFilePath = "default.jpg";
+        string coverContentType = "image/jpg";
+        
+        if (dto.Cover != null && dto.Cover.Length > 0) {
+            string coverExtension = Path.GetExtension(dto.Cover.FileName);
+            coverFilePath = Guid.NewGuid().ToString() + coverExtension;
+            coverFileName = dto.Cover.FileName;
+            string physicalCoverPath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Covers", coverFilePath);
+            coverContentType = dto.Cover.ContentType;
+
+            if(!Directory.Exists(Path.GetDirectoryName(physicalCoverPath)))
+            Directory.CreateDirectory(Path.GetDirectoryName(physicalCoverPath)!);
+            
+            using (var stream = new FileStream(physicalCoverPath, FileMode.Create))
+            {
+                await dto.Cover.CopyToAsync(stream);
+            }
+        }
         
         var book = new Book
         {
@@ -100,7 +122,10 @@ public class BooksController : ControllerBase
             FileName = fileName,
             FilePath = fileName,
             FileSize = dto.File.Length,
-            ContentType = dto.File.ContentType
+            ContentType = dto.File.ContentType,
+            CoverFileName = coverFileName,
+            CoverFilePath = coverFilePath,
+            CoverContentType = coverContentType
         };
         
         _context.Books.Add(book);
@@ -146,6 +171,12 @@ public class BooksController : ControllerBase
         
         string FilePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", book.FilePath);
         if (System.IO.File.Exists(FilePath)) System.IO.File.Delete(FilePath);
+        
+        if(book.CoverFilePath != "default.jpg")
+        {
+            string CoverPath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Covers", book.CoverFilePath);
+            if (System.IO.File.Exists(CoverPath)) System.IO.File.Delete(CoverPath);
+        }
 
         _context.Books.Remove(book);
         await _context.SaveChangesAsync();

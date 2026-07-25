@@ -39,6 +39,7 @@ public static class DbInitializer
         context.SaveChanges();
 
         var (file1Path, file1Size) = SeedBookFile("Clean Code.pdf");
+        
         var book1 = new Book
         {
             Title = "Clean Code",
@@ -49,7 +50,10 @@ public static class DbInitializer
             ContentType = "application/pdf",
             UploadedAt = DateTime.UtcNow,
             Description = "Clean Code: A Handbook of Agile Software Craftsmanship",
-            Author = "Robert C. Martin"
+            Author = "Robert C. Martin",
+            CoverFileName = "CleanCode.jpg",
+            CoverFilePath = SeedCoverFile("CleanCode.jpg"),
+            CoverContentType = "image/jpg"
         };
 
         var(file2Path, file2Size) = SeedBookFile("Dark Tower 1.pdf");
@@ -63,7 +67,10 @@ public static class DbInitializer
             ContentType = "application/pdf",
             UploadedAt = DateTime.UtcNow,
             Description = "Dark Tower 1",
-            Author = "Stephen King"
+            Author = "Stephen King",
+            CoverFileName = "TheDarkTower1.jpg",
+            CoverFilePath = SeedCoverFile("TheDarkTower1.jpg"),
+            CoverContentType = "image/jpg"
         };
 
         var(file3Path, file3Size) = SeedBookFile("The Selfish Gene.pdf");
@@ -77,7 +84,10 @@ public static class DbInitializer
             ContentType = "application/pdf",
             UploadedAt = DateTime.UtcNow,
             Description = "The Selfish Gene",
-            Author = "Richard Dawkins"
+            Author = "Richard Dawkins",
+            CoverFileName = "TheSelfishGene.jpg",
+            CoverFilePath = SeedCoverFile("TheSelfishGene.jpg"),
+            CoverContentType = "image/jpg"
         };
 
         context.Books.AddRange(book1, book2, book3);
@@ -130,6 +140,25 @@ public static class DbInitializer
         var fileSize = new FileInfo(destinationPath).Length;
 
         return (uniqueFileName, fileSize);
+    }
+
+    private static string SeedCoverFile(string fileName)
+    {
+        var sourcePath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "SeedFiles", fileName);
+        if (!System.IO.File.Exists(sourcePath))
+        {
+            return string.Empty; 
+        }
+
+        var coverFilePath = Guid.NewGuid().ToString() + ".jpg";
+        var destinationPath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Covers", coverFilePath);
+
+        var destDir = Path.GetDirectoryName(destinationPath);
+        if (destDir != null && !Directory.Exists(destDir)) Directory.CreateDirectory(destDir);
+
+        System.IO.File.Copy(sourcePath, destinationPath, overwrite: true);
+
+        return coverFilePath;
     }
     
     

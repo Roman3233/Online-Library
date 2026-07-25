@@ -5,6 +5,9 @@
         } @else {
         @for (book of books(); track book.id) {
         <li class="bg-white rounded-lg shadow p-4 hover:shadow-md">
+            <a [routerLink]="['book', book.id]">
+                <img class="rounded w-100" [src]="book.coverUrl" />
+            </a>
             <a [routerLink]="['book', book.id]" class="text-slate-900 font-semibold hover:text-blue-500">{{
                 book.title
                 }}</a>

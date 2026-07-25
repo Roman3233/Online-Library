@@ -16,4 +16,5 @@ public class CreateBookDto {
 
     [Required(ErrorMessage = "File is required")]
     public IFormFile File { get; set; } = null!;
+    public IFormFile? Cover { get; set; }
 }

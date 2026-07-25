@@ -12,9 +12,11 @@
             class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
         </textarea>
         <p>Upload PDF file</p>
-        <input type="file" (change)="onFileChange($event)"
+        <input type="file" accept=".pdf,application/pdf" (change)="selectedFile = getFile($event)"
             class="border border-gray-300 px-3 py-2 rounded cursor-pointer">
-
+        <p>Upload Cover Image</p>
+        <input type="file" accept="image/*" (change)="coverFile = getFile($event)"
+            class="border border-gray-300 px-3 py-2 rounded cursor-pointer">
         <button (click)="onSubmit()"
             class="bg-emerald-500 hover:bg-emerald-600 px-4 py-2 rounded text-white cursor-pointer">
             Create Book
