@@ -15,6 +15,7 @@ public class BooksController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly CloudinaryService _cloudinary;
+    private static readonly HttpClient _httpClient = new HttpClient();
 
     public BooksController(AppDbContext context, CloudinaryService cloudinary) 
     { 
@@ -54,12 +55,27 @@ public class BooksController : ControllerBase
         return $"http://localhost:5164/Resources/Covers/{coverFilePath}";
     }
 
-    private static string ResolvePdfUrl(Book book)
+        private static string ResolvePdfUrl(Book book)
     {
-        if (IsRemoteUrl(book.FilePath))
-            return book.FilePath;
-
+        // Always return the API endpoint to proxy the request and avoid CORS / Authorization header redirection issues
         return $"http://localhost:5164/api/books/{book.Id}/file";
+    }
+    private async Task<IActionResult> ServeRemoteFileAsync(string url, string contentType, string? downloadName = null)
+    {
+        var response = await _httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+        if (!response.IsSuccessStatusCode)
+            throw new NotFoundException("File not found on remote storage");
+        var stream = await response.Content.ReadAsStreamAsync();
+        
+        // Copy to MemoryStream to make it seekable, allowing range processing
+        var memoryStream = new MemoryStream();
+        await stream.CopyToAsync(memoryStream);
+        memoryStream.Position = 0;
+        if (downloadName != null)
+        {
+            return File(memoryStream, contentType, downloadName);
+        }
+        return File(memoryStream, contentType, enableRangeProcessing: true);
     }
 
     [HttpGet]
@@ -194,19 +210,14 @@ public class BooksController : ControllerBase
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if(userIdClaim == null) return Unauthorized();
         var userId = int.Parse(userIdClaim);
-
         var existingBook = await _context.Books.FindAsync(id);
         if(existingBook is null) throw new NotFoundException("Book not found");
-
         if (string.IsNullOrEmpty(existingBook.FilePath))
-        throw new ValidationException("Book has no file");
-
+            throw new ValidationException("Book has no file");
         if (IsRemoteUrl(existingBook.FilePath))
-            return Redirect(existingBook.FilePath);
-
+            return await ServeRemoteFileAsync(existingBook.FilePath, existingBook.ContentType, existingBook.FileName);
         string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", existingBook.FilePath);
         if (!System.IO.File.Exists(filePath)) throw new NotFoundException("File not found on server");
-
         return PhysicalFile(filePath, existingBook.ContentType, existingBook.FileName);
     }
 
@@ -216,18 +227,15 @@ public class BooksController : ControllerBase
     {
         var book = await _context.Books.FindAsync(id);
         if (book is null) throw new NotFoundException("Book not found");
-
         if (string.IsNullOrEmpty(book.FilePath))
-        throw new ValidationException("Book has no file");
-
+            throw new ValidationException("Book has no file");
         if (IsRemoteUrl(book.FilePath))
-            return Redirect(book.FilePath);
-
+            return await ServeRemoteFileAsync(book.FilePath, book.ContentType);
         string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", book.FilePath);
         if (!System.IO.File.Exists(filePath)) throw new NotFoundException("File not found on server");
-
         return PhysicalFile(filePath, book.ContentType, enableRangeProcessing: true);
     }
+
     [HttpGet("user/{userId}")]
     public async Task<IActionResult> GetByUserId(int userId)
     {

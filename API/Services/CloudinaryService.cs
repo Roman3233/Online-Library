@@ -17,29 +17,45 @@ public class CloudinaryService
         _cloudinary = new Cloudinary(account);
     }
 
-   public async Task<string> UploadImageAsync(IFormFile file)
-{
-    using var stream = file.OpenReadStream();
-    var uploadParams = new ImageUploadParams
+      public async Task<string> UploadImageAsync(IFormFile file)
     {
-        File = new FileDescription(file.FileName, stream),
-        Folder = "covers",
-        AccessMode = "public" 
-    };
-    var result = await _cloudinary.UploadAsync(uploadParams);
-    return result.SecureUrl.ToString();
-}
+        using var stream = file.OpenReadStream();
+        var uploadParams = new ImageUploadParams
+        {
+            File = new FileDescription(file.FileName, stream),
+            Folder = "covers",
+            AccessMode = "public" 
+        };
+        var result = await _cloudinary.UploadAsync(uploadParams);
+        if (result.Error != null)
+        {
+            throw new Exception($"Cloudinary image upload failed: {result.Error.Message}");
+        }
+        if (result.SecureUrl == null)
+        {
+            throw new Exception("Cloudinary image upload failed: SecureUrl is null");
+        }
+        return result.SecureUrl.ToString();
+    }
 
-public async Task<string> UploadPdfAsync(IFormFile file)
-{
-    using var stream = file.OpenReadStream();
-    var uploadParams = new RawUploadParams
+    public async Task<string> UploadPdfAsync(IFormFile file)
     {
-        File = new FileDescription(file.FileName, stream),
-        Folder = "books",
-        AccessMode = "public" 
-    };
-    var result = await _cloudinary.UploadAsync(uploadParams);
-    return result.SecureUrl.ToString();
-}
+        using var stream = file.OpenReadStream();
+        var uploadParams = new RawUploadParams
+        {
+            File = new FileDescription(file.FileName, stream),
+            Folder = "books",
+            AccessMode = "public" 
+        };
+        var result = await _cloudinary.UploadAsync(uploadParams);
+        if (result.Error != null)
+        {
+            throw new Exception($"Cloudinary PDF upload failed: {result.Error.Message}");
+        }
+        if (result.SecureUrl == null)
+        {
+            throw new Exception("Cloudinary PDF upload failed: SecureUrl is null");
+        }
+        return result.SecureUrl.ToString();
+    }
 }
