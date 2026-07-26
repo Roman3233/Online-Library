@@ -132,13 +132,6 @@ public class BooksController : ControllerBase
             existingBook.CoverFilePath = coverFileName;
             existingBook.CoverContentType = dto.Cover.ContentType;
         }
-        if(dto.File != null) {
-            string fileName = await SaveFileAsync(dto.File, "Books");
-            existingBook.FileName = dto.File.FileName;
-            existingBook.FilePath = fileName;
-            existingBook.FileSize = dto.File.Length;
-            existingBook.ContentType = dto.File.ContentType;
-        }
         await _context.SaveChangesAsync();
         return NoContent();
     }

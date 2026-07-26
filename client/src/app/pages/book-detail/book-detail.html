@@ -88,9 +88,6 @@
             <label class="text-gray-400 text-sm">Cover image (jpg, png)</label>
             <input type="file" (change)="onCoverChange($event)"
                 class="bg-gray-800 border border-gray-700 px-3 py-2 rounded-lg text-gray-400 cursor-pointer">
-            <label class="text-gray-400 text-sm">File (pdf)</label>
-            <input type="file" (change)="onFileChange($event)"
-                class="bg-gray-800 border border-gray-700 px-3 py-2 rounded-lg text-gray-400 cursor-pointer">
             <div class="flex gap-3">
                 <button (click)="onUpdateBook(book()!.id)"
                     class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-lg text-sm cursor-pointer transition">
