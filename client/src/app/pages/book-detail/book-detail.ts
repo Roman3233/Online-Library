@@ -30,7 +30,6 @@ export class BookDetail {
   editDescription = '';
   editAuthor = '';
   editCoverFile: File | null = null;
-  editFile: File | null = null;
   user = signal<User | null>(null);
   isEditing = signal(false);
 
@@ -96,7 +95,7 @@ export class BookDetail {
     });
   }
   onUpdateBook(id: number) {
-    this.bookService.updateBook(id, this.editTitle, this.editDescription, this.editAuthor, this.editCoverFile, this.editFile).subscribe({
+    this.bookService.updateBook(id, this.editTitle, this.editDescription, this.editAuthor, this.editCoverFile).subscribe({
       next: () => {
         this.bookService.getBook(id).subscribe({
           next: (data) => this.book.set(data)
@@ -110,13 +109,6 @@ export class BookDetail {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       this.editCoverFile = input.files[0];
-    }
-  }
-
-  onFileChange(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-      this.editFile = input.files[0];
     }
   }
   toggleEdit() {

@@ -17,5 +17,4 @@ public class UpdateBookDto {
     //[Required(ErrorMessage = "ImgUrl is required")]
     //public required string ImgUrl { get; set; }
     public IFormFile? Cover  { get; set; } = null;
-    public IFormFile? File { get; set; } = null;
 }
