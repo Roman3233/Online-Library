@@ -12,4 +12,5 @@ public class BookSummaryDto
     public bool HasLiked { get; set; }
     public int LikeCount { get; set; }
     public string? CoverUrl { get; set; }
+    public string? PdfUrl { get; set; }
 }

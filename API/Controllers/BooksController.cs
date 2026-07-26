@@ -15,6 +15,24 @@ public class BooksController : ControllerBase
     private readonly AppDbContext _context;
 
     public BooksController(AppDbContext context) { _context = context; }
+
+    private static BookSummaryDto MapBookSummary(Book book, bool hasLiked, int likeCount)
+    {
+        return new BookSummaryDto
+        {
+            Id = book.Id,
+            Title = book.Title,
+            UploadedAt = book.UploadedAt,
+            Author = book.Author,
+            Description = book.Description,
+            UserId = book.UserId,
+            HasLiked = hasLiked,
+            LikeCount = likeCount,
+            CoverUrl = $"http://localhost:5164/Resources/Covers/{book.CoverFilePath}",
+            PdfUrl = $"http://localhost:5164/api/books/{book.Id}/file"
+        };
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] string? search)
     {
@@ -28,20 +46,10 @@ public class BooksController : ControllerBase
             (b.Author != null && b.Author.ToLower().Contains(search)) || 
             (b.Description != null && b.Description.ToLower().Contains(search)));
         }
-        
+
         var filteredBooks = await books.ToListAsync();
 
-        return Ok(filteredBooks.Select(b => new BookSummaryDto {
-            Id = b.Id,
-            Title = b.Title,
-            UploadedAt = b.UploadedAt,
-            Author = b.Author,
-            Description = b.Description,
-            UserId = b.UserId,
-            HasLiked = b.Likes.Any(l => l.UserId == userId),
-            LikeCount = b.Likes.Count,
-            CoverUrl = $"http://localhost:5164/Resources/Covers/{b.CoverFilePath}"
-        }));
+        return Ok(filteredBooks.Select(b => MapBookSummary(b, b.Likes.Any(l => l.UserId == userId), b.Likes.Count)));
     }
 
     [HttpGet("{id}")]
@@ -56,17 +64,7 @@ public class BooksController : ControllerBase
 
         var book = await _context.Books.Include(b => b.User).FirstOrDefaultAsync(b => b.Id == id);
         if (book is null) throw new NotFoundException("Book not found");
-        return Ok(new BookSummaryDto {
-            Id = book.Id,
-            Title = book.Title,
-            UploadedAt = book.UploadedAt,
-            Author = book.Author,
-            Description = book.Description,
-            UserId = book.UserId,
-            HasLiked = hasLiked,
-            LikeCount = likeCount,
-            CoverUrl = $"http://localhost:5164/Resources/Covers/{book.CoverFilePath}"
-        });
+        return Ok(MapBookSummary(book, hasLiked, likeCount));
     }
 
     [Authorize]
@@ -226,6 +224,22 @@ public class BooksController : ControllerBase
         
         return PhysicalFile(FilePath, existingBook.ContentType, existingBook.FileName);
     }
+
+    [AllowAnonymous]
+    [HttpGet("{id}/file")]
+    public async Task<IActionResult> GetFile(int id)
+    {
+        var book = await _context.Books.FindAsync(id);
+        if (book is null) throw new NotFoundException("Book not found");
+
+        if (string.IsNullOrEmpty(book.FilePath))
+        throw new ValidationException("Book has no file");
+
+        string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", book.FilePath);
+        if (!System.IO.File.Exists(filePath)) throw new NotFoundException("File not found on server");
+
+        return PhysicalFile(filePath, book.ContentType, enableRangeProcessing: true);
+    }
     [HttpGet("user/{userId}")]
     public async Task<IActionResult> GetByUserId(int userId)
     {
@@ -239,7 +253,9 @@ public class BooksController : ControllerBase
             UploadedAt = b.UploadedAt,
             Author = b.Author,
             Description = b.Description,
-            UserId = b.UserId
+            UserId = b.UserId,
+            CoverUrl = $"http://localhost:5164/Resources/Covers/{b.CoverFilePath}",
+            PdfUrl = $"http://localhost:5164/api/books/{b.Id}/file"
         }));
     }
 

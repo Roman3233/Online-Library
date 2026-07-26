@@ -8,10 +8,11 @@ import { RouterLink } from '@angular/router';
 import { Router } from '@angular/router';
 import { User } from '../../services/user';
 import { ToastService } from '../../services/toast';
+import { PdfViewerModule } from 'ng2-pdf-viewer';
 
 @Component({
   selector: 'app-book-detail',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, PdfViewerModule],
   templateUrl: './book-detail.html',
   styleUrl: './book-detail.css',
 })
@@ -40,6 +41,7 @@ export class BookDetail {
     this.bookService.getBook(+id!).subscribe({
       next: (data) => {
         this.book.set(data);
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
         this.editTitle = data.title;
         this.editDescription = data.description ?? '';
         this.editAuthor = data.author ?? '';

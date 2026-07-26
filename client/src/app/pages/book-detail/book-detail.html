@@ -37,6 +37,29 @@
             </div>
         </div>
     </div>
+
+    <section class="mt-10 bg-gray-900/60 border border-gray-800 rounded-2xl p-4 sm:p-6 shadow-xl">
+        <div class="flex items-center justify-between gap-4 mb-4">
+            <div>
+                <h2 class="text-2xl font-semibold">Read online</h2>
+                <p class="text-sm text-gray-400">Embedded PDF preview</p>
+            </div>
+            <button (click)="onDownload()"
+                class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg text-sm cursor-pointer transition">
+                Open download
+            </button>
+        </div>
+
+        @if(book()!.pdfUrl) {
+        <div class="bg-black rounded-xl overflow-hidden border border-gray-800">
+            <pdf-viewer [src]="book()!.pdfUrl!" [render-text]="true" [show-all]="true" [original-size]="false"
+                [fit-to-page]="true" [zoom-scale]="'page-width'" style="width: 100%; height: 80vh; display: block;">
+            </pdf-viewer>
+        </div>
+        } @else {
+        <p class="text-gray-500">PDF preview is unavailable for this book.</p>
+        }
+    </section>
     }
 
     <!-- Buttons -->

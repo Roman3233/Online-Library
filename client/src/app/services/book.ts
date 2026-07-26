@@ -84,6 +84,7 @@ export interface Book {
   hasLiked?: boolean;
   likeCount?: number;
   coverUrl?: string;
+  pdfUrl?: string;
 }
 
 export interface Comment {
