@@ -1,24 +1,30 @@
-<main class="container mx-auto max-w-lg mt-12 px-4">
-    <h1 class="text-2xl font-bold mb-6">Create a Book</h1>
+<main class="min-h-screen bg-gray-950 text-white px-6 py-10 max-w-2xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6">Create a Book</h1>
 
     <div class="flex flex-col gap-4">
-        <label class="font-semibold">Title</label>
+        <label class="text-gray-400 text-sm">Title</label>
         <input type="text" [(ngModel)]="title" placeholder="Book title"
-            class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-        <p>Author</p>
+            class="bg-gray-800 border border-gray-700 px-3 py-2 rounded-lg text-white focus:outline-none focus:border-emerald-500">
+
+        <label class="text-gray-400 text-sm">Author</label>
         <input type="text" [(ngModel)]="author" placeholder="Author name"
-            class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+            class="bg-gray-800 border border-gray-700 px-3 py-2 rounded-lg text-white focus:outline-none focus:border-emerald-500">
+
+        <label class="text-gray-400 text-sm">Description</label>
         <textarea [(ngModel)]="description" placeholder="Book description" rows="4"
-            class="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </textarea>
-        <p>Upload PDF file</p>
-        <input type="file" accept=".pdf,application/pdf" (change)="selectedFile = getFile($event)"
-            class="border border-gray-300 px-3 py-2 rounded cursor-pointer">
-        <p>Upload Cover Image</p>
+            class="bg-gray-800 border border-gray-700 px-3 py-2 rounded-lg text-white focus:outline-none focus:border-emerald-500">
+    </textarea>
+
+        <label class="text-gray-400 text-sm">PDF file</label>
+        <input type="file" accept=".pdf" (change)="selectedFile = getFile($event)"
+            class="bg-gray-800 border border-gray-700 px-3 py-2 rounded-lg text-gray-400 cursor-pointer">
+
+        <label class="text-gray-400 text-sm">Cover image</label>
         <input type="file" accept="image/*" (change)="coverFile = getFile($event)"
-            class="border border-gray-300 px-3 py-2 rounded cursor-pointer">
+            class="bg-gray-800 border border-gray-700 px-3 py-2 rounded-lg text-gray-400 cursor-pointer">
+
         <button (click)="onSubmit()"
-            class="bg-emerald-500 hover:bg-emerald-600 px-4 py-2 rounded text-white cursor-pointer">
+            class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-lg text-white cursor-pointer transition mt-2">
             Create Book
         </button>
     </div>

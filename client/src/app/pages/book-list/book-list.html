@@ -1,16 +1,17 @@
-<main class="container">
-    <ul class="grid grid-cols-4 gap-4 mt-4">
+<main class="min-h-screen bg-gray-950 text-white px-6 py-6">
+    <ul class="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
         @if (isLoading()) {
-        <p>Loading...</p>
+        <p class="text-gray-400">Loading...</p>
         } @else {
         @for (book of books(); track book.id) {
-        <li class="bg-white rounded-lg shadow p-4 hover:shadow-md">
-            <a [routerLink]="['book', book.id]">
-                <img class="rounded w-100" [src]="book.coverUrl" />
+        <li class="bg-gray-800 rounded-lg overflow-hidden hover:bg-gray-700 transition cursor-pointer">
+            <a [routerLink]="['/book', book.id]">
+                <img [src]="book.coverUrl" class="w-full h-110 object-cover" />
+                <div class="p-3">
+                    <p class="text-sm font-semibold truncate">{{ book.title }}</p>
+                    <p class="text-xs text-gray-400 truncate">{{ book.author }}</p>
+                </div>
             </a>
-            <a [routerLink]="['book', book.id]" class="text-slate-900 font-semibold hover:text-blue-500">{{
-                book.title
-                }}</a>
         </li>
         }
         }

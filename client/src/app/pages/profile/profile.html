@@ -1,53 +1,87 @@
-<main class="container">
-    <div>
-        @if(isLoading()){
-        <p>Loading...</p>
-        } @else if (user()) {
+<main class="min-h-screen bg-gray-950 text-white px-6 py-10 max-w-4xl mx-auto">
+
+    @if(isLoading()) {
+    <p class="text-gray-400">Loading...</p>
+    } @else if (user()) {
+
+    <div class="flex items-center gap-6 mb-10">
         <div>
-            <h1 class="text-2xl font-bold">{{ user()?.username }}</h1>
+            <h1 class="text-3xl font-bold">{{ user()?.username }}</h1>
+            <p class="text-gray-400 text-sm mt-1">{{ user()?.email }}</p>
         </div>
-        }
-    </div>
-    <div class="mt-8">
-        <h2 class="text-xl font-semibold">Books uploaded by {{ user()?.username }}:</h2>
-        <ul class="mt-2">
-            @for(book of books(); track $index){
-            <li class="hover:text-blue-400">
-                <a [routerLink]="['/book', book.id]">{{ book.title }}</a>
-            </li>
-            }
-        </ul>
     </div>
 
-    <div class="mt-8">
-        <h2 class="text-xl font-semibold">Books liked by {{ user()?.username }}:</h2>
-        <ul class="mt-2">
-            @for(book of user()?.likedBooks; track $index){
-            <li class="hover:text-blue-400">
-                <a [routerLink]="['/book', book.id]">{{ book.title }}</a>
-            </li>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+
+        <div>
+            <h2 class="text-lg font-semibold text-gray-300 mb-3 border-b border-gray-700 pb-2">Uploaded Books</h2>
+            @if(books().length === 0) {
+            <p class="text-gray-500 text-sm">No books uploaded yet</p>
+            } @else {
+            <ul class="flex flex-col gap-2">
+                @for(book of books(); track $index) {
+                <li>
+                    <a [routerLink]="['/book', book.id]" class="text-blue-400 hover:text-blue-300 text-sm transition">
+                        {{ book.title }}
+                    </a>
+                </li>
+                }
+            </ul>
             }
-        </ul>
+        </div>
+
+        <div>
+            <h2 class="text-lg font-semibold text-gray-300 mb-3 border-b border-gray-700 pb-2">Liked Books</h2>
+            @if(user()?.likedBooks?.length === 0) {
+            <p class="text-gray-500 text-sm">No liked books yet</p>
+            } @else {
+            <ul class="flex flex-col gap-2">
+                @for(book of user()?.likedBooks; track $index) {
+                <li>
+                    <a [routerLink]="['/book', book.id]" class="text-blue-400 hover:text-blue-300 text-sm transition">
+                        {{ book.title }}
+                    </a>
+                </li>
+                }
+            </ul>
+            }
+        </div>
+
     </div>
 
-    <div class="flex gap-4 mt-8">
-        @if(user() && (authService.getCurrentUserId() === user()!.id || authService.getCurrentUserRole() === 'admin')){
-        <button (click)="onDelete()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded cursor-pointer text-white">
-            Delete
-        </button>
+    @if(user() && (authService.getCurrentUserId() === user()!.id || authService.getCurrentUserRole() === 'admin')) {
+
+    @if(!isEditing()) {
+    <div class="flex gap-3">
         <button (click)="toggleEdit()"
-            class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded cursor-pointer text-white">
-            Edit
+            class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg text-sm cursor-pointer transition">
+            Edit Username
         </button>
-        <button (click)="onLogout()" class="bg-gray-500 hover:bg-gray-600 px-4 py-2 rounded cursor-pointer text-white">
+        <button (click)="onLogout()"
+            class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg text-sm cursor-pointer transition">
             Logout
         </button>
-        @if(isEditing()){
-        <input type="text" [(ngModel)]="editUsername" class="border border-gray-300 px-2 py-2 rounded">
-        <button (click)="onEdit()" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded text-white">
+        <button (click)="onDelete()"
+            class="bg-red-800 hover:bg-red-700 px-4 py-2 rounded-lg text-sm cursor-pointer transition">
+            Delete Account
+        </button>
+    </div>
+    } @else {
+    <div class="flex gap-3 items-center">
+        <input type="text" [(ngModel)]="editUsername"
+            class="bg-gray-800 border border-gray-700 px-3 py-2 rounded-lg text-white focus:outline-none focus:border-blue-500">
+        <button (click)="onEdit()"
+            class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg text-sm cursor-pointer transition">
             Save
         </button>
-        }
-        }
+        <button (click)="toggleEdit()"
+            class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg text-sm cursor-pointer transition">
+            Cancel
+        </button>
     </div>
+    }
+
+    }
+
+    }
 </main>
