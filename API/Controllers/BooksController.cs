@@ -174,6 +174,22 @@ public class BooksController : ControllerBase
         existingBook.Description = dto.Description;
         
         if(dto.Cover != null) {
+            if (IsRemoteUrl(existingBook.CoverFilePath))
+            {
+                if (!existingBook.CoverFilePath.EndsWith("default.jpg"))
+                {
+                    await _cloudinary.DeleteFileAsync(existingBook.CoverFilePath, isRaw: false);
+                }
+            }
+            else
+            {
+                if (existingBook.CoverFilePath != "default.jpg")
+                {
+                    string oldCoverPath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Covers", existingBook.CoverFilePath);
+                    if (System.IO.File.Exists(oldCoverPath)) System.IO.File.Delete(oldCoverPath);
+                }
+            }
+
             string coverFilePath = await _cloudinary.UploadImageAsync(dto.Cover);
             existingBook.CoverFileName = dto.Cover.FileName;
             existingBook.CoverFilePath = coverFilePath;
@@ -197,6 +213,32 @@ public class BooksController : ControllerBase
         
         if (book.UserId != userId && !User.IsInRole("admin")) 
         throw new ForbiddenException("You don't have permission to delete this book");
+
+        if (IsRemoteUrl(book.FilePath))
+        {
+            await _cloudinary.DeleteFileAsync(book.FilePath, isRaw: true);
+        }
+        else
+        {
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", book.FilePath);
+            if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
+        }
+
+        if (IsRemoteUrl(book.CoverFilePath))
+        {
+            if (!book.CoverFilePath.EndsWith("default.jpg"))
+            {
+                await _cloudinary.DeleteFileAsync(book.CoverFilePath, isRaw: false);
+            }
+        }
+        else
+        {
+            if (book.CoverFilePath != "default.jpg")
+            {
+                string coverPath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Covers", book.CoverFilePath);
+                if (System.IO.File.Exists(coverPath)) System.IO.File.Delete(coverPath);
+            }
+        }
 
         _context.Books.Remove(book);
         await _context.SaveChangesAsync();
