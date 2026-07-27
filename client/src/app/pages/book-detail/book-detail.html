@@ -129,14 +129,14 @@
         </div>
         }
 
-        <div class="flex gap-2 mt-6">
+        <form class="flex gap-2 mt-6" (ngSubmit)="onAddComment()">
             <input type="text" [(ngModel)]="newComment" placeholder="Add a comment..."
                 class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
-            <button (click)="onAddComment()"
+            <button type="submit"
                 class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg cursor-pointer transition">
                 Post
             </button>
-        </div>
+        </form>
     </div>
 
 </main>

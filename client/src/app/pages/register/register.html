@@ -1,5 +1,5 @@
 <main class="min-h-screen bg-gray-950 text-white flex items-center justify-center px-6">
-    <div class="w-full max-w-md bg-gray-900 rounded-xl p-8 flex flex-col gap-5">
+    <form class="w-full max-w-md bg-gray-900 rounded-xl p-8 flex flex-col gap-5" (ngSubmit)="onRegister()">
 
         <div>
             <h1 class="text-3xl font-bold">Create an account</h1>
@@ -15,7 +15,7 @@
         <input type="password" [(ngModel)]="password" placeholder="Password"
             class="bg-gray-800 border border-gray-700 px-3 py-2 rounded-lg text-white focus:outline-none focus:border-emerald-500">
 
-        <button (click)="onRegister()"
+        <button type="submit"
             class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-lg text-white cursor-pointer transition">
             Register
         </button>
@@ -25,5 +25,5 @@
             <a routerLink="/login" class="text-emerald-400 hover:text-emerald-300">Login here</a>
         </p>
 
-    </div>
+    </form>
 </main>

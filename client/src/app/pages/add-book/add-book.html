@@ -1,7 +1,7 @@
 <main class="min-h-screen bg-gray-950 text-white px-6 py-10 max-w-2xl mx-auto">
     <h1 class="text-3xl font-bold mb-6">Create a Book</h1>
 
-    <div class="flex flex-col gap-4">
+    <form class="flex flex-col gap-4" (ngSubmit)="onSubmit()">
         <label class="text-gray-400 text-sm">Title</label>
         <input type="text" [(ngModel)]="title" placeholder="Book title"
             class="bg-gray-800 border border-gray-700 px-3 py-2 rounded-lg text-white focus:outline-none focus:border-emerald-500">
@@ -23,7 +23,7 @@
         <input type="file" accept="image/*" (change)="coverFile = getFile($event)"
             class="bg-gray-800 border border-gray-700 px-3 py-2 rounded-lg text-gray-400 cursor-pointer">
 
-        <button (click)="onSubmit()" [disabled]="isLoading()"
+        <button type="submit" [disabled]="isLoading()"
             class="bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-800 disabled:cursor-not-allowed px-4 py-2 rounded-lg text-white cursor-pointer transition mt-2">
             @if(isLoading()) {
             Creating...
@@ -31,5 +31,5 @@
             Create Book
             }
         </button>
-    </div>
+    </form>
 </main>
