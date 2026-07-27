@@ -102,3 +102,4 @@ Icon?
 appsettings.json
 
 src/environments/environment.prod.ts
+.vercel
