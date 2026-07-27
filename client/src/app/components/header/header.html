@@ -1,11 +1,11 @@
-<header class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center">
-    <a [routerLink]="['/']" class="text-xl font-bold">📚 Online Library</a>
-    <form class="flex gap-2" (ngSubmit)="onSearch()">
+<header class="bg-slate-900 text-white px-4 py-4 sm:px-6 flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+    <a [routerLink]="['/']" class="text-xl font-bold">Online Library</a>
+    <form class="flex w-full gap-2 sm:max-w-md" (ngSubmit)="onSearch()">
         <input type="text" [(ngModel)]="searchQuery" placeholder="Search books..."
-            class=" px-2 py-1 rounded bg-white text-black" />
-        <button type="submit" class="bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded">Search</button>
+            class="flex-1 min-w-0 px-3 py-2 rounded bg-white text-black" />
+        <button type="submit" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded whitespace-nowrap">Search</button>
     </form>
-    <nav class="flex gap-4 items-center">
+    <nav class="flex flex-wrap gap-3 items-center">
         @if(isLoggedIn()) {
         <a [routerLink]="['/add-book']" class="hover:text-emerald-400">Add Book</a>
         <a [routerLink]="['/profile', authService.getCurrentUserId()]" class="hover:text-emerald-400">Profile</a>
