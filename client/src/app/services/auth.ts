@@ -9,7 +9,7 @@ import { environment } from '../../environments/environment';
 })
 export class AuthService {
   private http = inject(HttpClient);
-  private apiUrl = environment.apiUrl;
+  private apiUrl = environment.apiUrl + '/auth';
 
   register(email: string, username: string, password: string) {
     return this.http.post(this.apiUrl + '/register', { email, username, password });

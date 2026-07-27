@@ -8,7 +8,7 @@ import { environment } from '../../environments/environment';
 })
 export class UserService {
   private http = inject(HttpClient);
-  private apiUrl = environment.apiUrl;
+  private apiUrl = environment.apiUrl + '/users';
 
   getMyProfile() {
     return this.http.get<User>(this.apiUrl + '/me');
