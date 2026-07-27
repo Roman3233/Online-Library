@@ -23,8 +23,14 @@ public class BooksController : ControllerBase
         _cloudinary = cloudinary;
     }
 
-    private static BookSummaryDto MapBookSummary(Book book, bool hasLiked, int likeCount)
+    private string GetBaseUrl()
     {
+        return $"{Request.Scheme}://{Request.Host}";
+    }
+
+    private BookSummaryDto MapBookSummary(Book book, bool hasLiked, int likeCount)
+    {
+        var baseUrl = GetBaseUrl();
         return new BookSummaryDto
         {
             Id = book.Id,
@@ -35,8 +41,8 @@ public class BooksController : ControllerBase
             UserId = book.UserId,
             HasLiked = hasLiked,
             LikeCount = likeCount,
-            CoverUrl = ResolveCoverUrl(book.CoverFilePath),
-            PdfUrl = ResolvePdfUrl(book)
+            CoverUrl = ResolveCoverUrl(baseUrl, book.CoverFilePath),
+            PdfUrl = ResolvePdfUrl(baseUrl, book)
         };
     }
 
@@ -47,18 +53,21 @@ public class BooksController : ControllerBase
             (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
     }
 
-    private static string ResolveCoverUrl(string coverFilePath)
+    private static string ResolveCoverUrl(string baseUrl, string coverFilePath)
     {
+        if (string.IsNullOrWhiteSpace(coverFilePath))
+            coverFilePath = "default.jpg";
+
         if (IsRemoteUrl(coverFilePath))
             return coverFilePath;
 
-        return $"http://localhost:5164/Resources/Covers/{coverFilePath}";
+        return $"{baseUrl}/Resources/Covers/{coverFilePath}";
     }
 
-        private static string ResolvePdfUrl(Book book)
+        private static string ResolvePdfUrl(string baseUrl, Book book)
     {
         // Always return the API endpoint to proxy the request and avoid CORS / Authorization header redirection issues
-        return $"http://localhost:5164/api/books/{book.Id}/file";
+        return $"{baseUrl}/api/books/{book.Id}/file";
     }
     private async Task<IActionResult> ServeRemoteFileAsync(string url, string contentType, string? downloadName = null)
     {
@@ -292,8 +301,8 @@ public class BooksController : ControllerBase
             Author = b.Author,
             Description = b.Description,
             UserId = b.UserId,
-            CoverUrl = ResolveCoverUrl(b.CoverFilePath),
-            PdfUrl = ResolvePdfUrl(b)
+            CoverUrl = ResolveCoverUrl(GetBaseUrl(), b.CoverFilePath),
+            PdfUrl = ResolvePdfUrl(GetBaseUrl(), b)
         }));
     }
 

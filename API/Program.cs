@@ -81,6 +81,14 @@ builder.Services.AddSingleton<CloudinaryService>();
 
 var app = builder.Build();
 
+var resourcesPath = Path.Combine(app.Environment.ContentRootPath, "Resources");
+var booksPath = Path.Combine(resourcesPath, "Books");
+var coversPath = Path.Combine(resourcesPath, "Covers");
+
+Directory.CreateDirectory(resourcesPath);
+Directory.CreateDirectory(booksPath);
+Directory.CreateDirectory(coversPath);
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -93,8 +101,7 @@ app.UseCors("FrontendPolicy");
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(
-        Path.Combine(builder.Environment.ContentRootPath, "Resources")),
+    FileProvider = new PhysicalFileProvider(resourcesPath),
     RequestPath = "/Resources"
 });
 
