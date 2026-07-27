@@ -6,6 +6,7 @@ using API.Data;
 using API.Models;
 using API.DTOs;
 using API.Middleware.Exceptions;
+using API.Services;
 
 namespace API.Controllers;
 [ApiController]
@@ -13,8 +14,14 @@ namespace API.Controllers;
 public class BooksController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly CloudinaryService _cloudinary;
+    private static readonly HttpClient _httpClient = new HttpClient();
 
-    public BooksController(AppDbContext context) { _context = context; }
+    public BooksController(AppDbContext context, CloudinaryService cloudinary) 
+    { 
+        _context = context; 
+        _cloudinary = cloudinary;
+    }
 
     private static BookSummaryDto MapBookSummary(Book book, bool hasLiked, int likeCount)
     {
@@ -28,9 +35,47 @@ public class BooksController : ControllerBase
             UserId = book.UserId,
             HasLiked = hasLiked,
             LikeCount = likeCount,
-            CoverUrl = $"http://localhost:5164/Resources/Covers/{book.CoverFilePath}",
-            PdfUrl = $"http://localhost:5164/api/books/{book.Id}/file"
+            CoverUrl = ResolveCoverUrl(book.CoverFilePath),
+            PdfUrl = ResolvePdfUrl(book)
         };
+    }
+
+    private static bool IsRemoteUrl(string? value)
+    {
+        return !string.IsNullOrWhiteSpace(value) &&
+            Uri.TryCreate(value, UriKind.Absolute, out var uri) &&
+            (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
+    }
+
+    private static string ResolveCoverUrl(string coverFilePath)
+    {
+        if (IsRemoteUrl(coverFilePath))
+            return coverFilePath;
+
+        return $"http://localhost:5164/Resources/Covers/{coverFilePath}";
+    }
+
+        private static string ResolvePdfUrl(Book book)
+    {
+        // Always return the API endpoint to proxy the request and avoid CORS / Authorization header redirection issues
+        return $"http://localhost:5164/api/books/{book.Id}/file";
+    }
+    private async Task<IActionResult> ServeRemoteFileAsync(string url, string contentType, string? downloadName = null)
+    {
+        var response = await _httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+        if (!response.IsSuccessStatusCode)
+            throw new NotFoundException("File not found on remote storage");
+        var stream = await response.Content.ReadAsStreamAsync();
+        
+        // Copy to MemoryStream to make it seekable, allowing range processing
+        var memoryStream = new MemoryStream();
+        await stream.CopyToAsync(memoryStream);
+        memoryStream.Position = 0;
+        if (downloadName != null)
+        {
+            return File(memoryStream, contentType, downloadName);
+        }
+        return File(memoryStream, contentType, enableRangeProcessing: true);
     }
 
     [HttpGet]
@@ -75,15 +120,17 @@ public class BooksController : ControllerBase
         if(userIdClaim == null) return Unauthorized();
         var userId = int.Parse(userIdClaim);
         if (dto.File == null || dto.File.Length == 0) throw new ValidationException("File is required");
+        if (!string.Equals(Path.GetExtension(dto.File.FileName), ".pdf", StringComparison.OrdinalIgnoreCase))
+            throw new ValidationException("File type not supported");
 
-        string fileName = await SaveFileAsync(dto.File, "Books");
+        string fileName = await _cloudinary.UploadPdfAsync(dto.File);
 
         string coverFileName = "default.jpg";
         string coverFilePath = "default.jpg";
         string coverContentType = "image/jpg";
         
         if (dto.Cover != null && dto.Cover.Length > 0) {
-            coverFilePath = await SaveCoverAsync(dto.Cover);
+            coverFilePath = await _cloudinary.UploadImageAsync(dto.Cover);
             coverFileName = dto.Cover.FileName;
             coverContentType = dto.Cover.ContentType;
         }
@@ -95,7 +142,7 @@ public class BooksController : ControllerBase
             UploadedAt = DateTime.UtcNow,
             Author = dto.Author,
             Description = dto.Description,
-            FileName = fileName,
+            FileName = dto.File.FileName,
             FilePath = fileName,
             FileSize = dto.File.Length,
             ContentType = dto.File.ContentType,
@@ -127,46 +174,29 @@ public class BooksController : ControllerBase
         existingBook.Description = dto.Description;
         
         if(dto.Cover != null) {
-            string coverFileName = await SaveCoverAsync(dto.Cover);
+            if (IsRemoteUrl(existingBook.CoverFilePath))
+            {
+                if (!existingBook.CoverFilePath.EndsWith("default.jpg"))
+                {
+                    await _cloudinary.DeleteFileAsync(existingBook.CoverFilePath, isRaw: false);
+                }
+            }
+            else
+            {
+                if (existingBook.CoverFilePath != "default.jpg")
+                {
+                    string oldCoverPath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Covers", existingBook.CoverFilePath);
+                    if (System.IO.File.Exists(oldCoverPath)) System.IO.File.Delete(oldCoverPath);
+                }
+            }
+
+            string coverFilePath = await _cloudinary.UploadImageAsync(dto.Cover);
             existingBook.CoverFileName = dto.Cover.FileName;
-            existingBook.CoverFilePath = coverFileName;
+            existingBook.CoverFilePath = coverFilePath;
             existingBook.CoverContentType = dto.Cover.ContentType;
         }
         await _context.SaveChangesAsync();
         return NoContent();
-    }
-
-    private async Task<string> SaveFileAsync(IFormFile file, string folder)
-    {
-        string extension = Path.GetExtension(file.FileName);
-        if(extension != ".pdf") throw new ValidationException("File type not supported");
-
-        string fileName = Guid.NewGuid().ToString() + extension;
-        string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", folder, fileName);
-
-        await WriteFileAsync(filePath, file);
-
-        return fileName;
-    }
-
-    private async Task<string> SaveCoverAsync(IFormFile file)
-    {
-        string extension = Path.GetExtension(file.FileName);
-        string fileName = Guid.NewGuid().ToString() + extension;
-        string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Covers", fileName);
-
-        await WriteFileAsync(filePath, file);
-
-        return fileName;
-    }
-
-    private async Task WriteFileAsync(string oldFilePath, IFormFile file)
-    {
-         if (!Directory.Exists(Path.GetDirectoryName(oldFilePath)))
-            Directory.CreateDirectory(Path.GetDirectoryName(oldFilePath)!);
-
-        using var stream = new FileStream(oldFilePath, FileMode.Create);
-        await file.CopyToAsync(stream);
     }
 
     [Authorize]
@@ -183,14 +213,31 @@ public class BooksController : ControllerBase
         
         if (book.UserId != userId && !User.IsInRole("admin")) 
         throw new ForbiddenException("You don't have permission to delete this book");
-        
-        string FilePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", book.FilePath);
-        if (System.IO.File.Exists(FilePath)) System.IO.File.Delete(FilePath);
-        
-        if(book.CoverFilePath != "default.jpg")
+
+        if (IsRemoteUrl(book.FilePath))
         {
-            string CoverPath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Covers", book.CoverFilePath);
-            if (System.IO.File.Exists(CoverPath)) System.IO.File.Delete(CoverPath);
+            await _cloudinary.DeleteFileAsync(book.FilePath, isRaw: true);
+        }
+        else
+        {
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", book.FilePath);
+            if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
+        }
+
+        if (IsRemoteUrl(book.CoverFilePath))
+        {
+            if (!book.CoverFilePath.EndsWith("default.jpg"))
+            {
+                await _cloudinary.DeleteFileAsync(book.CoverFilePath, isRaw: false);
+            }
+        }
+        else
+        {
+            if (book.CoverFilePath != "default.jpg")
+            {
+                string coverPath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Covers", book.CoverFilePath);
+                if (System.IO.File.Exists(coverPath)) System.IO.File.Delete(coverPath);
+            }
         }
 
         _context.Books.Remove(book);
@@ -205,17 +252,15 @@ public class BooksController : ControllerBase
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if(userIdClaim == null) return Unauthorized();
         var userId = int.Parse(userIdClaim);
-
         var existingBook = await _context.Books.FindAsync(id);
         if(existingBook is null) throw new NotFoundException("Book not found");
-
         if (string.IsNullOrEmpty(existingBook.FilePath))
-        throw new ValidationException("Book has no file");
-
-        string FilePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", existingBook.FilePath);
-        if (!System.IO.File.Exists(FilePath)) throw new NotFoundException("File not found on server");
-        
-        return PhysicalFile(FilePath, existingBook.ContentType, existingBook.FileName);
+            throw new ValidationException("Book has no file");
+        if (IsRemoteUrl(existingBook.FilePath))
+            return await ServeRemoteFileAsync(existingBook.FilePath, existingBook.ContentType, existingBook.FileName);
+        string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", existingBook.FilePath);
+        if (!System.IO.File.Exists(filePath)) throw new NotFoundException("File not found on server");
+        return PhysicalFile(filePath, existingBook.ContentType, existingBook.FileName);
     }
 
     [AllowAnonymous]
@@ -224,15 +269,15 @@ public class BooksController : ControllerBase
     {
         var book = await _context.Books.FindAsync(id);
         if (book is null) throw new NotFoundException("Book not found");
-
         if (string.IsNullOrEmpty(book.FilePath))
-        throw new ValidationException("Book has no file");
-
+            throw new ValidationException("Book has no file");
+        if (IsRemoteUrl(book.FilePath))
+            return await ServeRemoteFileAsync(book.FilePath, book.ContentType);
         string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Books", book.FilePath);
         if (!System.IO.File.Exists(filePath)) throw new NotFoundException("File not found on server");
-
         return PhysicalFile(filePath, book.ContentType, enableRangeProcessing: true);
     }
+
     [HttpGet("user/{userId}")]
     public async Task<IActionResult> GetByUserId(int userId)
     {
@@ -247,8 +292,8 @@ public class BooksController : ControllerBase
             Author = b.Author,
             Description = b.Description,
             UserId = b.UserId,
-            CoverUrl = $"http://localhost:5164/Resources/Covers/{b.CoverFilePath}",
-            PdfUrl = $"http://localhost:5164/api/books/{b.Id}/file"
+            CoverUrl = ResolveCoverUrl(b.CoverFilePath),
+            PdfUrl = ResolvePdfUrl(b)
         }));
     }
 

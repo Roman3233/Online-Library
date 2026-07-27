@@ -6,6 +6,7 @@ using System.Text;
 using API.Middleware;
 using Microsoft.OpenApi;
 using Microsoft.Extensions.FileProviders;
+using API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,14 +77,9 @@ builder.Services.AddCors(options =>
     });
 });
 
-var app = builder.Build();
+builder.Services.AddSingleton<CloudinaryService>();
 
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(
-        Path.Combine(builder.Environment.ContentRootPath, "Resources", "Covers")),
-    RequestPath = "/Resources/Covers"
-});
+var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
@@ -94,6 +90,13 @@ if (app.Environment.IsDevelopment())
 app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseCors("FrontendPolicy");
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "Resources")),
+    RequestPath = "/Resources"
+});
 
 app.UseAuthentication();
 app.UseAuthorization();

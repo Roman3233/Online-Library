@@ -98,3 +98,5 @@ Icon?
 *.swo
 *.tmp
 ~$*
+
+appsettings.json
