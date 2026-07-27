@@ -72,9 +72,13 @@ builder.Services.AddCors(options =>
     {
         var allowedOrigins = builder.Configuration
             .GetSection("Cors:AllowedOrigins")
-            .Get<string[]>() ?? new[] { "http://localhost:4200" };
+            .Get<string[]>() ?? Array.Empty<string>();
 
-        policy.WithOrigins(allowedOrigins)
+        policy.SetIsOriginAllowed(origin =>
+            allowedOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase) ||
+            Uri.TryCreate(origin, UriKind.Absolute, out var uri) &&
+            (uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase) ||
+             uri.Host.EndsWith(".vercel.app", StringComparison.OrdinalIgnoreCase)))
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
