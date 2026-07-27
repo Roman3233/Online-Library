@@ -25,7 +25,13 @@ public class BooksController : ControllerBase
 
     private string GetBaseUrl()
     {
-        return $"{Request.Scheme}://{Request.Host}";
+        if (Request.Host.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase) ||
+            Request.Host.Host.Equals("127.0.0.1", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"{Request.Scheme}://{Request.Host}";
+        }
+
+        return $"https://{Request.Host}";
     }
 
     private BookSummaryDto MapBookSummary(Book book, bool hasLiked, int likeCount)

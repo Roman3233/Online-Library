@@ -23,9 +23,13 @@
         <input type="file" accept="image/*" (change)="coverFile = getFile($event)"
             class="bg-gray-800 border border-gray-700 px-3 py-2 rounded-lg text-gray-400 cursor-pointer">
 
-        <button (click)="onSubmit()"
-            class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-lg text-white cursor-pointer transition mt-2">
+        <button (click)="onSubmit()" [disabled]="isLoading()"
+            class="bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-800 disabled:cursor-not-allowed px-4 py-2 rounded-lg text-white cursor-pointer transition mt-2">
+            @if(isLoading()) {
+            Creating...
+            } @else {
             Create Book
+            }
         </button>
     </div>
 </main>

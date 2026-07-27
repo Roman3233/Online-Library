@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { BookService, Book } from '../../services/book';
 import { Router } from '@angular/router';
 import { ToastService } from '../../services/toast';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-add-book',
@@ -14,6 +15,7 @@ export class AddBook {
   private bookService = inject(BookService);
   private toastService = inject(ToastService);
   private router = inject(Router);
+  isLoading = signal(false);
   title = '';
   description = '';
   author = '';
@@ -26,16 +28,21 @@ export class AddBook {
   }
 
   onSubmit() {
+    if (this.isLoading()) return;
+
     if (!this.selectedFile) {
       this.toastService.showError('Please choose a PDF file.');
       return;
     }
 
-    this.bookService.createBook(this.title, this.description, this.author, this.selectedFile, this.coverFile).subscribe({
-      next: (data) => {
-        this.toastService.showSuccess('Book created successfully');
-        this.router.navigate(['/book/' + data.id]);
-      }
-    });
+    this.isLoading.set(true);
+    this.bookService.createBook(this.title, this.description, this.author, this.selectedFile, this.coverFile)
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (data) => {
+          this.toastService.showSuccess('Book created successfully');
+          this.router.navigate(['/book/' + data.id]);
+        }
+      });
   }
 }
